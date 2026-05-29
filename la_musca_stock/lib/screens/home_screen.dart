@@ -26,12 +26,16 @@ class _HomeScreenState extends State<HomeScreen>
   // Filtres de comandes
   int? _filtreBotigaId;
   int? _filtreProducteId;
+  String? _filtreEstat;
 
   // Cercadors de botigues i productes
   final TextEditingController _searchBotiguesController = TextEditingController();
   final TextEditingController _searchProductesController = TextEditingController();
   String _searchBotiguesQuery = '';
   String _searchProductesQuery = '';
+
+  // Color de fons per a la botiga 'La Musca magatzem'
+  static const String _magatzemName = 'La Musca magatzem';
 
   // Filtres de consultes d'estoc
   String _consultaTipus = 'botiga'; // 'botiga' o 'producte'
@@ -165,6 +169,10 @@ class _HomeScreenState extends State<HomeScreen>
       comandes =
           comandes.where((c) => c.producteId == _filtreProducteId).toList();
     }
+    if (_filtreEstat != null) {
+      comandes =
+          comandes.where((c) => c.estat == _filtreEstat).toList();
+    }
 
     comandes.sort((a, b) => b.data.compareTo(a.data));
 
@@ -282,15 +290,56 @@ class _HomeScreenState extends State<HomeScreen>
                     },
                   ),
                 ),
+                // Filtre per estat
+                SizedBox(
+                  width: 200,
+                  child: DropdownButtonFormField<String?>(
+                    key: ValueKey('filtre_estat_$_filtreEstat'),
+                    initialValue: _filtreEstat,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Estat',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                    ),
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text('Tots els estats'),
+                      ),
+                      ...Comanda.estatsDisponibles.map(
+                        (estat) => DropdownMenuItem<String?>(
+                          value: estat,
+                          child: Text(estat),
+                        ),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _filtreEstat = value;
+                      });
+                    },
+                  ),
+                ),
                 TextButton.icon(
                   onPressed: () {
                     setState(() {
                       _filtreBotigaId = null;
                       _filtreProducteId = null;
+                      _filtreEstat = null;
                     });
                   },
                   icon: const Icon(Icons.clear_all),
                   label: const Text('Netejar filtres'),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.info_outline),
+                  tooltip: 'Llegenda d\'estats',
+                  onPressed: () => _showEstatLegend(),
                 ),
               ],
             ),
@@ -330,6 +379,9 @@ class _HomeScreenState extends State<HomeScreen>
                         horizontal: 8,
                         vertical: 4,
                       ),
+                      color: botiga?.nom == _magatzemName
+                          ? Theme.of(context).colorScheme.secondaryContainer
+                          : null,
                       child: ListTile(
                         leading: _buildEstatIcon(comanda.estat),
                         title: Text(
@@ -412,6 +464,49 @@ class _HomeScreenState extends State<HomeScreen>
     return CircleAvatar(
       backgroundColor: color.withValues(alpha: 0.15),
       child: Icon(icon, color: color, size: 20),
+    );
+  }
+
+  /// Mostra un diàleg amb la llegenda dels icones d'estat.
+  void _showEstatLegend() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Llegenda d\'estats'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _legendRow(Icons.local_shipping, Colors.green, 'ENTREGAT'),
+            _legendRow(Icons.assignment_return, Colors.orange, 'RECOLLIT'),
+            _legendRow(Icons.point_of_sale, Colors.blue, 'VENUT'),
+            _legendRow(Icons.move_to_inbox, Colors.teal, 'MAGATZEM IN'),
+            _legendRow(Icons.warning_amber, Colors.red.shade800, 'DEFECTUÓS'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tancar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _legendRow(IconData icon, Color color, String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: color.withValues(alpha: 0.15),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Text(label, style: const TextStyle(fontSize: 15)),
+        ],
+      ),
     );
   }
 
@@ -511,6 +606,9 @@ class _HomeScreenState extends State<HomeScreen>
                   horizontal: 8,
                   vertical: 4,
                 ),
+                color: botiga.nom == _magatzemName
+                    ? Theme.of(context).colorScheme.secondaryContainer
+                    : null,
                 child: ExpansionTile(
                   leading: CircleAvatar(
                     backgroundImage: botiga.imatgeBase64 != null &&
@@ -1035,6 +1133,19 @@ class _HomeScreenState extends State<HomeScreen>
             (totalPerBotiga[c.botigaId] ?? 0) + c.quantitat;
       }
 
+      // Per 'La Musca magatzem' (ID 25) amb estat 'Tots':
+      // Calcular MAGATZEM IN (del magatzem) - sumatori de TOTS els ENTREGAT (de totes les botigues)
+      if (_consultaEstat == null) {
+        const magatzemId = 25;
+        final magatzemIn = totesComandes
+            .where((c) => c.botigaId == magatzemId && c.estat == 'MAGATZEM IN')
+            .fold<int>(0, (sum, c) => sum + c.quantitat);
+        final totalEntregat = totesComandes
+            .where((c) => c.estat == 'ENTREGAT')
+            .fold<int>(0, (sum, c) => sum + c.quantitat);
+        totalPerBotiga[magatzemId] = magatzemIn - totalEntregat;
+      }
+
       if (totalPerBotiga.isEmpty) {
         return Center(
           child: Text(
@@ -1076,7 +1187,13 @@ class _HomeScreenState extends State<HomeScreen>
                 rows: [
                   ...entries.map((e) {
                     final botiga = botigaRepo.getById(e.key);
-                    return DataRow(cells: [
+                    return DataRow(
+                      color: botiga?.nom == _magatzemName
+                          ? WidgetStateProperty.all(
+                              Theme.of(context).colorScheme.secondaryContainer,
+                            )
+                          : null,
+                      cells: [
                       DataCell(Text(botiga?.nom ?? 'Desconeguda')),
                       DataCell(Text(
                         e.value.toString(),

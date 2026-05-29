@@ -85,7 +85,7 @@ class _ComandaFormScreenState extends State<ComandaFormScreen> {
     final repo = context.read<ComandaRepository>();
     int quantitat = int.tryParse(_quantitatController.text.trim()) ?? 0;
 
-    if (_selectedEstat == 'RECOLLIT' || _selectedEstat == 'VENUT' || _selectedEstat == 'MAGATZEM OUT') {
+    if (_selectedEstat == 'RECOLLIT' || _selectedEstat == 'VENUT' || _selectedEstat == 'DEFECTUOS') {
       quantitat = -quantitat.abs();
     } else {
       quantitat = quantitat.abs();

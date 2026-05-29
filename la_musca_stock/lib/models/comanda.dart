@@ -70,6 +70,6 @@ class Comanda {
     'RECOLLIT',
     'VENUT',
     'MAGATZEM IN',
-    'MAGATZEM OUT',
+    'DEFECTUOS',
   ];
 }

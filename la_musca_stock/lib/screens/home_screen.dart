@@ -440,9 +440,9 @@ class _HomeScreenState extends State<HomeScreen>
         icon = Icons.move_to_inbox;
         color = Colors.teal;
         break;
-      case 'MAGATZEM OUT':
-        icon = Icons.outbox;
-        color = Colors.deepPurple;
+      case 'DEFECTUOS':
+        icon = Icons.warning_amber;
+        color = Colors.red.shade800;
         break;
       default:
         icon = Icons.help_outline;

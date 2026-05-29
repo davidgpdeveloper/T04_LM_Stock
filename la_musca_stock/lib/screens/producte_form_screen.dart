@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/producte.dart';
+import '../models/comanda.dart';
 import '../repositories/producte_repository.dart';
+import '../repositories/comanda_repository.dart';
 import '../widgets/image_picker_widget.dart';
 
 class ProducteFormScreen extends StatefulWidget {
@@ -66,6 +68,12 @@ class _ProducteFormScreenState extends State<ProducteFormScreen> {
       await repo.update(producte);
     } else {
       await repo.add(producte);
+      // Obtenir el producte creat amb l'ID real assignat pel servidor
+      final producteCreat = repo.productes.lastWhere(
+        (p) => p.nom == producte.nom,
+      );
+      // Crear comanda automàtica per al magatzem
+      await _createAutoComanda(producteCreat);
     }
 
     if (mounted) {
@@ -172,5 +180,56 @@ class _ProducteFormScreenState extends State<ProducteFormScreen> {
     _quantitatController.dispose();
     _descripcioController.dispose();
     super.dispose();
+  }
+
+  /// Genera l'albarà automàtic per al magatzem (ID 25).
+  /// Busca l'últim albarà amb format 'MAG X' i incrementa el número.
+  /// Si no en troba cap, genera 'MAG' + data + hora en mil·lisegons.
+  String _generateMagatzemAlbara(ComandaRepository comandaRepo) {
+    const magatzemId = 25;
+    final comandesMagatzem = comandaRepo.comandes
+        .where((c) => c.botigaId == magatzemId && c.albara.startsWith('MAG'))
+        .toList();
+
+    // Buscar l'albarà amb el número més alt
+    int maxNum = -1;
+    final regExp = RegExp(r'^MAG\s*(\d+)$');
+    for (final c in comandesMagatzem) {
+      final match = regExp.firstMatch(c.albara.trim());
+      if (match != null) {
+        final num = int.tryParse(match.group(1)!) ?? 0;
+        if (num > maxNum) maxNum = num;
+      }
+    }
+
+    if (maxNum >= 0) {
+      return 'MAG ${maxNum + 1}';
+    }
+
+    // Si no es troba cap albarà amb format numèric, generar amb data+hora
+    final now = DateTime.now();
+    return 'MAG${now.year}${now.month.toString().padLeft(2, '0')}'
+        '${now.day.toString().padLeft(2, '0')}'
+        '${now.millisecondsSinceEpoch}';
+  }
+
+  /// Crea una comanda automàtica al magatzem quan s'afegeix un producte nou.
+  Future<void> _createAutoComanda(Producte producte) async {
+    const magatzemId = 25;
+    final comandaRepo = context.read<ComandaRepository>();
+    final albara = _generateMagatzemAlbara(comandaRepo);
+
+    final comanda = Comanda(
+      id: comandaRepo.nextId,
+      albara: albara,
+      data: DateTime.now(),
+      botigaId: magatzemId,
+      producteId: producte.id,
+      quantitat: producte.quantitat,
+      estat: 'MAGATZEM IN',
+      observacions: 'Comanda auto-generada per registre de producte nou.',
+    );
+
+    await comandaRepo.add(comanda);
   }
 }

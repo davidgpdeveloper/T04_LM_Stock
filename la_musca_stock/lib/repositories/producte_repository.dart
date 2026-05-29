@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../config/app_config.dart';
+import '../data/api_data_source.dart';
 import '../data/test_data_provider.dart';
 import '../models/producte.dart';
 
@@ -15,6 +16,8 @@ class ProducteRepository extends ChangeNotifier {
     if (_loaded) return;
     if (AppConfig.usarDadesDeProva) {
       _productes = await TestDataProvider.loadProductes();
+    } else {
+      _productes = await ApiDataSource.loadProductes();
     }
     _loaded = true;
     notifyListeners();
@@ -43,11 +46,19 @@ class ProducteRepository extends ChangeNotifier {
   }
 
   Future<void> add(Producte producte) async {
-    _productes.add(producte);
+    if (!AppConfig.usarDadesDeProva) {
+      final created = await ApiDataSource.createProducte(producte);
+      _productes.add(created);
+    } else {
+      _productes.add(producte);
+    }
     notifyListeners();
   }
 
   Future<void> update(Producte producte) async {
+    if (!AppConfig.usarDadesDeProva) {
+      await ApiDataSource.updateProducte(producte);
+    }
     final index = _productes.indexWhere((p) => p.id == producte.id);
     if (index >= 0) {
       _productes[index] = producte;
@@ -56,6 +67,9 @@ class ProducteRepository extends ChangeNotifier {
   }
 
   Future<void> delete(int id) async {
+    if (!AppConfig.usarDadesDeProva) {
+      await ApiDataSource.deleteProducte(id);
+    }
     _productes.removeWhere((p) => p.id == id);
     notifyListeners();
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../config/app_config.dart';
+import '../data/api_data_source.dart';
 import '../data/test_data_provider.dart';
 import '../models/comanda.dart';
 
@@ -15,6 +16,8 @@ class ComandaRepository extends ChangeNotifier {
     if (_loaded) return;
     if (AppConfig.usarDadesDeProva) {
       _comandes = await TestDataProvider.loadComandes();
+    } else {
+      _comandes = await ApiDataSource.loadComandes();
     }
     _loaded = true;
     notifyListeners();
@@ -52,11 +55,19 @@ class ComandaRepository extends ChangeNotifier {
   }
 
   Future<void> add(Comanda comanda) async {
-    _comandes.add(comanda);
+    if (!AppConfig.usarDadesDeProva) {
+      final created = await ApiDataSource.createComanda(comanda);
+      _comandes.add(created);
+    } else {
+      _comandes.add(comanda);
+    }
     notifyListeners();
   }
 
   Future<void> update(Comanda comanda) async {
+    if (!AppConfig.usarDadesDeProva) {
+      await ApiDataSource.updateComanda(comanda);
+    }
     final index = _comandes.indexWhere((c) => c.id == comanda.id);
     if (index >= 0) {
       _comandes[index] = comanda;
@@ -65,16 +76,25 @@ class ComandaRepository extends ChangeNotifier {
   }
 
   Future<void> delete(int id) async {
+    if (!AppConfig.usarDadesDeProva) {
+      await ApiDataSource.deleteComanda(id);
+    }
     _comandes.removeWhere((c) => c.id == id);
     notifyListeners();
   }
 
   Future<void> deleteByBotigaId(int botigaId) async {
+    if (!AppConfig.usarDadesDeProva) {
+      await ApiDataSource.deleteComandesByBotiga(botigaId);
+    }
     _comandes.removeWhere((c) => c.botigaId == botigaId);
     notifyListeners();
   }
 
   Future<void> deleteByProducteId(int producteId) async {
+    if (!AppConfig.usarDadesDeProva) {
+      await ApiDataSource.deleteComandesByProducte(producteId);
+    }
     _comandes.removeWhere((c) => c.producteId == producteId);
     notifyListeners();
   }

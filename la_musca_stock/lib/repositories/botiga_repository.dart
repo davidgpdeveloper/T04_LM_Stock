@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../config/app_config.dart';
+import '../data/api_data_source.dart';
 import '../data/test_data_provider.dart';
 import '../models/botiga.dart';
 
@@ -15,6 +16,8 @@ class BotigaRepository extends ChangeNotifier {
     if (_loaded) return;
     if (AppConfig.usarDadesDeProva) {
       _botigues = await TestDataProvider.loadBotigues();
+    } else {
+      _botigues = await ApiDataSource.loadBotigues();
     }
     _loaded = true;
     notifyListeners();
@@ -42,11 +45,19 @@ class BotigaRepository extends ChangeNotifier {
   }
 
   Future<void> add(Botiga botiga) async {
-    _botigues.add(botiga);
+    if (!AppConfig.usarDadesDeProva) {
+      final created = await ApiDataSource.createBotiga(botiga);
+      _botigues.add(created);
+    } else {
+      _botigues.add(botiga);
+    }
     notifyListeners();
   }
 
   Future<void> update(Botiga botiga) async {
+    if (!AppConfig.usarDadesDeProva) {
+      await ApiDataSource.updateBotiga(botiga);
+    }
     final index = _botigues.indexWhere((b) => b.id == botiga.id);
     if (index >= 0) {
       _botigues[index] = botiga;
@@ -55,6 +66,9 @@ class BotigaRepository extends ChangeNotifier {
   }
 
   Future<void> delete(int id) async {
+    if (!AppConfig.usarDadesDeProva) {
+      await ApiDataSource.deleteBotiga(id);
+    }
     _botigues.removeWhere((b) => b.id == id);
     notifyListeners();
   }

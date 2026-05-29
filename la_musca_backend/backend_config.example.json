@@ -1,0 +1,9 @@
+{
+  "db_host": "lamusca.cat",
+  "db_port": 3306,
+  "db_user": "YOUR_USER",
+  "db_password": "YOUR_PASSWORD",
+  "db_name": "bdd_comandes",
+  "server_host": "localhost",
+  "server_port": 8080
+}

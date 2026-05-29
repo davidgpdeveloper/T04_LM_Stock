@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/botiga.dart';
 import '../repositories/botiga_repository.dart';
+import '../widgets/image_picker_widget.dart';
 
 class BotigaFormScreen extends StatefulWidget {
   final Botiga? botiga;
@@ -15,7 +16,7 @@ class BotigaFormScreen extends StatefulWidget {
 class _BotigaFormScreenState extends State<BotigaFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nomController;
-  late final TextEditingController _nomCompletController;
+  late final TextEditingController _nomFiscalController;
   late final TextEditingController _nifController;
   late final TextEditingController _adrecaController;
   late final TextEditingController _poblacioController;
@@ -23,6 +24,7 @@ class _BotigaFormScreenState extends State<BotigaFormScreen> {
   late final TextEditingController _mailController;
   late final TextEditingController _telefonController;
   late final TextEditingController _observacionsController;
+  String? _imatgeBase64;
 
   bool get _isEditing => widget.botiga != null;
 
@@ -30,8 +32,8 @@ class _BotigaFormScreenState extends State<BotigaFormScreen> {
   void initState() {
     super.initState();
     _nomController = TextEditingController(text: widget.botiga?.nom ?? '');
-    _nomCompletController =
-        TextEditingController(text: widget.botiga?.nomComplet ?? '');
+    _nomFiscalController =
+        TextEditingController(text: widget.botiga?.nomFiscal ?? '');
     _nifController = TextEditingController(text: widget.botiga?.nif ?? '');
     _adrecaController =
         TextEditingController(text: widget.botiga?.adreca ?? '');
@@ -44,6 +46,7 @@ class _BotigaFormScreenState extends State<BotigaFormScreen> {
         TextEditingController(text: widget.botiga?.telefon ?? '');
     _observacionsController =
         TextEditingController(text: widget.botiga?.observacions ?? '');
+    _imatgeBase64 = widget.botiga?.imatgeBase64;
   }
 
   Future<void> _save() async {
@@ -66,7 +69,7 @@ class _BotigaFormScreenState extends State<BotigaFormScreen> {
     final botiga = Botiga(
       id: widget.botiga?.id ?? repo.nextId,
       nom: nom,
-      nomComplet: _nomCompletController.text.trim(),
+      nomFiscal: _nomFiscalController.text.trim(),
       nif: _nifController.text.trim(),
       adreca: _adrecaController.text.trim(),
       poblacio: _poblacioController.text.trim(),
@@ -74,6 +77,7 @@ class _BotigaFormScreenState extends State<BotigaFormScreen> {
       mail: _mailController.text.trim(),
       telefon: _telefonController.text.trim(),
       observacions: _observacionsController.text.trim(),
+      imatgeBase64: _imatgeBase64,
     );
 
     if (_isEditing) {
@@ -129,9 +133,9 @@ class _BotigaFormScreenState extends State<BotigaFormScreen> {
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
-                    controller: _nomCompletController,
+                    controller: _nomFiscalController,
                     decoration: const InputDecoration(
-                      labelText: 'Nom complet',
+                      labelText: 'Nom fiscal',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.badge),
                     ),
@@ -210,6 +214,14 @@ class _BotigaFormScreenState extends State<BotigaFormScreen> {
                     ),
                     maxLines: 3,
                   ),
+                  const SizedBox(height: 16),
+                  ImagePickerWidget(
+                    currentImageBase64: _imatgeBase64,
+                    onImageChanged: (value) {
+                      setState(() => _imatgeBase64 = value);
+                    },
+                    label: 'Imatge de la botiga',
+                  ),
                   const SizedBox(height: 24),
                   FilledButton.icon(
                     onPressed: _save,
@@ -228,7 +240,7 @@ class _BotigaFormScreenState extends State<BotigaFormScreen> {
   @override
   void dispose() {
     _nomController.dispose();
-    _nomCompletController.dispose();
+    _nomFiscalController.dispose();
     _nifController.dispose();
     _adrecaController.dispose();
     _poblacioController.dispose();

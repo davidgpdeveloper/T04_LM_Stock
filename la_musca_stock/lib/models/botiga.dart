@@ -1,7 +1,7 @@
 class Botiga {
   final int id;
   String nom;
-  String nomComplet;
+  String nomFiscal;
   String nif;
   String adreca;
   String poblacio;
@@ -9,11 +9,12 @@ class Botiga {
   String mail;
   String telefon;
   String observacions;
+  String? imatgeBase64;
 
   Botiga({
     required this.id,
     required this.nom,
-    this.nomComplet = '',
+    this.nomFiscal = '',
     this.nif = '',
     this.adreca = '',
     this.poblacio = '',
@@ -21,13 +22,14 @@ class Botiga {
     this.mail = '',
     this.telefon = '',
     this.observacions = '',
+    this.imatgeBase64,
   });
 
   factory Botiga.fromJson(Map<String, dynamic> json) {
     return Botiga(
       id: json['id'] as int,
       nom: json['nom'] as String,
-      nomComplet: json['nom_complet'] as String? ?? '',
+      nomFiscal: json['nom_fiscal'] as String? ?? '',
       nif: json['nif'] as String? ?? '',
       adreca: json['adreca'] as String? ?? '',
       poblacio: json['poblacio'] as String? ?? '',
@@ -35,13 +37,14 @@ class Botiga {
       mail: json['mail'] as String? ?? '',
       telefon: json['telefon'] as String? ?? '',
       observacions: json['observacions'] as String? ?? '',
+      imatgeBase64: json['imatge'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'nom': nom,
-        'nom_complet': nomComplet,
+        'nom_fiscal': nomFiscal,
         'nif': nif,
         'adreca': adreca,
         'poblacio': poblacio,
@@ -49,12 +52,13 @@ class Botiga {
         'mail': mail,
         'telefon': telefon,
         'observacions': observacions,
+        'imatge': imatgeBase64,
       };
 
   Botiga copyWith({
     int? id,
     String? nom,
-    String? nomComplet,
+    String? nomFiscal,
     String? nif,
     String? adreca,
     String? poblacio,
@@ -62,11 +66,12 @@ class Botiga {
     String? mail,
     String? telefon,
     String? observacions,
+    String? imatgeBase64,
   }) {
     return Botiga(
       id: id ?? this.id,
       nom: nom ?? this.nom,
-      nomComplet: nomComplet ?? this.nomComplet,
+      nomFiscal: nomFiscal ?? this.nomFiscal,
       nif: nif ?? this.nif,
       adreca: adreca ?? this.adreca,
       poblacio: poblacio ?? this.poblacio,
@@ -74,6 +79,7 @@ class Botiga {
       mail: mail ?? this.mail,
       telefon: telefon ?? this.telefon,
       observacions: observacions ?? this.observacions,
+      imatgeBase64: imatgeBase64 ?? this.imatgeBase64,
     );
   }
 }

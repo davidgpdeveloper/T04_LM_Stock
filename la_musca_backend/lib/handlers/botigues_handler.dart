@@ -12,8 +12,8 @@ class BotiguesHandler {
   Future<Response> getAll(Request request) async {
     try {
       final result = await db.pool.execute(
-        'SELECT b_ID, b_NOM, b_NOM_COMPLET, b_NIF, b_ADRECA, '
-        'b_POBLACIO, b_CODI_POSTAL, b_MAIL, b_TELF, b_OBSERVACIONS '
+        'SELECT b_ID, b_NOM, b_NOMF, b_NIF, b_ADRECA, '
+        'b_POBLACIO, b_CP, b_MAIL, b_TELF, b_OBSERVACIONS, b_IMATGE '
         'FROM botigues ORDER BY b_NOM',
       );
       final botigues = result.rows.map((row) => _rowToJson(row.assoc())).toList();
@@ -27,8 +27,8 @@ class BotiguesHandler {
   Future<Response> getById(Request request, String id) async {
     try {
       final result = await db.pool.execute(
-        'SELECT b_ID, b_NOM, b_NOM_COMPLET, b_NIF, b_ADRECA, '
-        'b_POBLACIO, b_CODI_POSTAL, b_MAIL, b_TELF, b_OBSERVACIONS '
+        'SELECT b_ID, b_NOM, b_NOMF, b_NIF, b_ADRECA, '
+        'b_POBLACIO, b_CP, b_MAIL, b_TELF, b_OBSERVACIONS, b_IMATGE '
         'FROM botigues WHERE b_ID = :id',
         {'id': id},
       );
@@ -49,20 +49,21 @@ class BotiguesHandler {
     try {
       final body = jsonDecode(await request.readAsString()) as Map<String, dynamic>;
       final result = await db.pool.execute(
-        'INSERT INTO botigues (b_NOM, b_NOM_COMPLET, b_NIF, b_ADRECA, '
-        'b_POBLACIO, b_CODI_POSTAL, b_MAIL, b_TELF, b_OBSERVACIONS) '
-        'VALUES (:nom, :nom_complet, :nif, :adreca, :poblacio, '
-        ':codi_postal, :mail, :telf, :observacions)',
+        'INSERT INTO botigues (b_NOM, b_NOMF, b_NIF, b_ADRECA, '
+        'b_POBLACIO, b_CP, b_MAIL, b_TELF, b_OBSERVACIONS, b_IMATGE) '
+        'VALUES (:nom, :nomf, :nif, :adreca, :poblacio, '
+        ':cp, :mail, :telf, :observacions, :imatge)',
         {
           'nom': body['nom'] ?? '',
-          'nom_complet': body['nom_complet'] ?? '',
+          'nomf': body['nom_fiscal'] ?? '',
           'nif': body['nif'] ?? '',
           'adreca': body['adreca'] ?? '',
           'poblacio': body['poblacio'] ?? '',
-          'codi_postal': body['codi_postal'] ?? '',
+          'cp': body['codi_postal'] ?? '',
           'mail': body['mail'] ?? '',
           'telf': body['telefon'] ?? '',
           'observacions': body['observacions'] ?? '',
+          'imatge': body['imatge'],
         },
       );
       final newId = result.lastInsertID.toInt();
@@ -77,21 +78,22 @@ class BotiguesHandler {
     try {
       final body = jsonDecode(await request.readAsString()) as Map<String, dynamic>;
       await db.pool.execute(
-        'UPDATE botigues SET b_NOM = :nom, b_NOM_COMPLET = :nom_complet, '
+        'UPDATE botigues SET b_NOM = :nom, b_NOMF = :nomf, '
         'b_NIF = :nif, b_ADRECA = :adreca, b_POBLACIO = :poblacio, '
-        'b_CODI_POSTAL = :codi_postal, b_MAIL = :mail, b_TELF = :telf, '
-        'b_OBSERVACIONS = :observacions WHERE b_ID = :id',
+        'b_CP = :cp, b_MAIL = :mail, b_TELF = :telf, '
+        'b_OBSERVACIONS = :observacions, b_IMATGE = :imatge WHERE b_ID = :id',
         {
           'id': id,
           'nom': body['nom'] ?? '',
-          'nom_complet': body['nom_complet'] ?? '',
+          'nomf': body['nom_fiscal'] ?? '',
           'nif': body['nif'] ?? '',
           'adreca': body['adreca'] ?? '',
           'poblacio': body['poblacio'] ?? '',
-          'codi_postal': body['codi_postal'] ?? '',
+          'cp': body['codi_postal'] ?? '',
           'mail': body['mail'] ?? '',
           'telf': body['telefon'] ?? '',
           'observacions': body['observacions'] ?? '',
+          'imatge': body['imatge'],
         },
       );
       return _jsonResponse({...body, 'id': int.parse(id)});
@@ -123,14 +125,15 @@ class BotiguesHandler {
   Map<String, dynamic> _rowToJson(Map<String, String?> r) => {
         'id': int.parse(r['b_ID'] ?? '0'),
         'nom': r['b_NOM'] ?? '',
-        'nom_complet': r['b_NOM_COMPLET'] ?? '',
+        'nom_fiscal': r['b_NOMF'] ?? '',
         'nif': r['b_NIF'] ?? '',
         'adreca': r['b_ADRECA'] ?? '',
         'poblacio': r['b_POBLACIO'] ?? '',
-        'codi_postal': r['b_CODI_POSTAL'] ?? '',
+        'codi_postal': r['b_CP'] ?? '',
         'mail': r['b_MAIL'] ?? '',
         'telefon': r['b_TELF'] ?? '',
         'observacions': r['b_OBSERVACIONS'] ?? '',
+        'imatge': r['b_IMATGE'],
       };
 }
 

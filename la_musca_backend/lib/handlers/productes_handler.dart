@@ -12,7 +12,7 @@ class ProductesHandler {
   Future<Response> getAll(Request request) async {
     try {
       final result = await db.pool.execute(
-        'SELECT p_ID, p_NOM, p_QUANTITAT, p_DESC FROM productes ORDER BY p_NOM',
+        'SELECT p_ID, p_NOM, p_QUANTITAT, p_DESC, p_IMATGE FROM productes ORDER BY p_NOM',
       );
       final productes = result.rows.map((row) => _rowToJson(row.assoc())).toList();
       return _jsonResponse(productes);
@@ -25,7 +25,7 @@ class ProductesHandler {
   Future<Response> getById(Request request, String id) async {
     try {
       final result = await db.pool.execute(
-        'SELECT p_ID, p_NOM, p_QUANTITAT, p_DESC FROM productes WHERE p_ID = :id',
+        'SELECT p_ID, p_NOM, p_QUANTITAT, p_DESC, p_IMATGE FROM productes WHERE p_ID = :id',
         {'id': id},
       );
       if (result.rows.isEmpty) {
@@ -45,11 +45,12 @@ class ProductesHandler {
     try {
       final body = jsonDecode(await request.readAsString()) as Map<String, dynamic>;
       final result = await db.pool.execute(
-        'INSERT INTO productes (p_NOM, p_QUANTITAT, p_DESC) VALUES (:nom, :quantitat, :desc)',
+        'INSERT INTO productes (p_NOM, p_QUANTITAT, p_DESC, p_IMATGE) VALUES (:nom, :quantitat, :desc, :imatge)',
         {
           'nom': body['nom'] ?? '',
           'quantitat': (body['quantitat'] ?? 0).toString(),
           'desc': body['descripcio'] ?? '',
+          'imatge': body['imatge'],
         },
       );
       final newId = result.lastInsertID.toInt();
@@ -65,12 +66,13 @@ class ProductesHandler {
       final body = jsonDecode(await request.readAsString()) as Map<String, dynamic>;
       await db.pool.execute(
         'UPDATE productes SET p_NOM = :nom, p_QUANTITAT = :quantitat, '
-        'p_DESC = :desc WHERE p_ID = :id',
+        'p_DESC = :desc, p_IMATGE = :imatge WHERE p_ID = :id',
         {
           'id': id,
           'nom': body['nom'] ?? '',
           'quantitat': (body['quantitat'] ?? 0).toString(),
           'desc': body['descripcio'] ?? '',
+          'imatge': body['imatge'],
         },
       );
       return _jsonResponse({...body, 'id': int.parse(id)});
@@ -104,6 +106,7 @@ class ProductesHandler {
         'nom': r['p_NOM'] ?? '',
         'quantitat': int.tryParse(r['p_QUANTITAT'] ?? '0') ?? 0,
         'descripcio': r['p_DESC'] ?? '',
+        'imatge': r['p_IMATGE'],
       };
 }
 

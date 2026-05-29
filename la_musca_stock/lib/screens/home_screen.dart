@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:provider/provider.dart';
 import '../models/comanda.dart';
 import '../repositories/botiga_repository.dart';
@@ -490,8 +491,15 @@ class _HomeScreenState extends State<HomeScreen>
                   vertical: 4,
                 ),
                 child: ExpansionTile(
-                  leading: const CircleAvatar(
-                    child: Icon(Icons.store),
+                  leading: CircleAvatar(
+                    backgroundImage: botiga.imatgeBase64 != null &&
+                            botiga.imatgeBase64!.isNotEmpty
+                        ? MemoryImage(base64Decode(botiga.imatgeBase64!))
+                        : null,
+                    child: botiga.imatgeBase64 == null ||
+                            botiga.imatgeBase64!.isEmpty
+                        ? const Icon(Icons.store)
+                        : null,
                   ),
                   title: Text(botiga.nom),
                   subtitle: botiga.poblacio.isNotEmpty
@@ -526,8 +534,8 @@ class _HomeScreenState extends State<HomeScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (botiga.nomComplet.isNotEmpty)
-                            _detailRow('Nom complet', botiga.nomComplet),
+                          if (botiga.nomFiscal.isNotEmpty)
+                            _detailRow('Nom fiscal', botiga.nomFiscal),
                           if (botiga.nif.isNotEmpty)
                             _detailRow('NIF', botiga.nif),
                           if (botiga.adreca.isNotEmpty)
@@ -622,7 +630,14 @@ class _HomeScreenState extends State<HomeScreen>
                   leading: CircleAvatar(
                     backgroundColor:
                         Theme.of(context).colorScheme.primaryContainer,
-                    child: const Icon(Icons.inventory),
+                    backgroundImage: producte.imatgeBase64 != null &&
+                            producte.imatgeBase64!.isNotEmpty
+                        ? MemoryImage(base64Decode(producte.imatgeBase64!))
+                        : null,
+                    child: producte.imatgeBase64 == null ||
+                            producte.imatgeBase64!.isEmpty
+                        ? const Icon(Icons.inventory)
+                        : null,
                   ),
                   title: Text(producte.nom),
                   subtitle: Column(

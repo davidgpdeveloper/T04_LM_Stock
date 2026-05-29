@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/producte.dart';
 import '../repositories/producte_repository.dart';
+import '../widgets/image_picker_widget.dart';
 
 class ProducteFormScreen extends StatefulWidget {
   final Producte? producte;
@@ -17,6 +18,7 @@ class _ProducteFormScreenState extends State<ProducteFormScreen> {
   late final TextEditingController _nomController;
   late final TextEditingController _quantitatController;
   late final TextEditingController _descripcioController;
+  String? _imatgeBase64;
 
   bool get _isEditing => widget.producte != null;
 
@@ -29,6 +31,7 @@ class _ProducteFormScreenState extends State<ProducteFormScreen> {
     );
     _descripcioController =
         TextEditingController(text: widget.producte?.descripcio ?? '');
+    _imatgeBase64 = widget.producte?.imatgeBase64;
   }
 
   Future<void> _save() async {
@@ -56,6 +59,7 @@ class _ProducteFormScreenState extends State<ProducteFormScreen> {
       nom: nom,
       quantitat: int.tryParse(_quantitatController.text.trim()) ?? 0,
       descripcio: _descripcioController.text.trim(),
+      imatgeBase64: _imatgeBase64,
     );
 
     if (_isEditing) {
@@ -136,6 +140,14 @@ class _ProducteFormScreenState extends State<ProducteFormScreen> {
                       prefixIcon: Icon(Icons.description),
                     ),
                     maxLines: 3,
+                  ),
+                  const SizedBox(height: 16),
+                  ImagePickerWidget(
+                    currentImageBase64: _imatgeBase64,
+                    onImageChanged: (value) {
+                      setState(() => _imatgeBase64 = value);
+                    },
+                    label: 'Imatge del producte',
                   ),
                   const SizedBox(height: 24),
                   FilledButton.icon(

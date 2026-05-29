@@ -39,4 +39,6 @@ Antes de sugerir, analiza:
 - Adaptación: actualiza cuando el código cambie, mantén la cobertura.
 
 - Fuera de alcance: si la consulta no involucra Flutter/Dart o el dominio de control de stock/clientes, indica al usuario que esta consulta está fuera del alcance de este agente y sugiere buscar un agente especializado en la tecnología solicitada.
+
+- Si vas a realizar cambios en el backend, primero explica claramente los cambios y espera que el usuario los apruebe antes de implementarlos.
 </workflow>

@@ -31,6 +31,12 @@ class _HomeScreenState extends State<HomeScreen>
   // Llista d'albarans disponibles segons la botiga seleccionada
   List<String> _albaransDisponibles = [];
 
+  // Cercadors de botigues i productes
+  final TextEditingController _searchBotiguesController = TextEditingController();
+  final TextEditingController _searchProductesController = TextEditingController();
+  String _searchBotiguesQuery = '';
+  String _searchProductesQuery = '';
+
   // Filtres de consultes d'estoc
   String _consultaTipus = 'botiga'; // 'botiga' o 'producte'
   int? _consultaBotigaId;
@@ -470,17 +476,71 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildBotiguesTab() {
     final botigaRepo = context.watch<BotigaRepository>();
-    final botigues = botigaRepo.botigues.toList()
+    final totesBotigues = botigaRepo.botigues.toList()
       ..sort((a, b) => a.nom.compareTo(b.nom));
 
-    return botigues.isEmpty
-        ? const Center(
-            child: Text(
-              'No hi ha botigues',
-              style: TextStyle(color: Colors.grey),
+    // Filtrar per cerca en temps real
+    final botigues = _searchBotiguesQuery.isEmpty
+        ? totesBotigues
+        : totesBotigues.where((b) {
+            final query = _searchBotiguesQuery.toLowerCase();
+            return b.nom.toLowerCase().contains(query) ||
+                b.nomFiscal.toLowerCase().contains(query) ||
+                b.poblacio.toLowerCase().contains(query) ||
+                b.nif.toLowerCase().contains(query);
+          }).toList();
+
+    return Column(
+      children: [
+        // Cercador en temps real
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+          child: TextField(
+            controller: _searchBotiguesController,
+            decoration: InputDecoration(
+              hintText: 'Cercar botigues...',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchBotiguesQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchBotiguesController.clear();
+                        setState(() => _searchBotiguesQuery = '');
+                      },
+                    )
+                  : null,
+              border: const OutlineInputBorder(),
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
             ),
-          )
-        : ListView.builder(
+            onChanged: (value) {
+              setState(() => _searchBotiguesQuery = value);
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          child: Row(
+            children: [
+              Text(
+                '${botigues.length} botigues',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: botigues.isEmpty
+              ? const Center(
+                  child: Text(
+                    'No hi ha botigues',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                )
+              : ListView.builder(
             padding: const EdgeInsets.only(bottom: 80),
             itemCount: botigues.length,
             itemBuilder: (context, index) {
@@ -557,7 +617,10 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               );
             },
-          );
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _detailRow(String label, String value) {
@@ -606,17 +669,69 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildProductesTab() {
     final producteRepo = context.watch<ProducteRepository>();
-    final productes = producteRepo.productes.toList()
+    final totsProductes = producteRepo.productes.toList()
       ..sort((a, b) => a.nom.compareTo(b.nom));
 
-    return productes.isEmpty
-        ? const Center(
-            child: Text(
-              'No hi ha productes',
-              style: TextStyle(color: Colors.grey),
+    // Filtrar per cerca en temps real
+    final productes = _searchProductesQuery.isEmpty
+        ? totsProductes
+        : totsProductes.where((p) {
+            final query = _searchProductesQuery.toLowerCase();
+            return p.nom.toLowerCase().contains(query) ||
+                p.descripcio.toLowerCase().contains(query);
+          }).toList();
+
+    return Column(
+      children: [
+        // Cercador en temps real
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+          child: TextField(
+            controller: _searchProductesController,
+            decoration: InputDecoration(
+              hintText: 'Cercar productes...',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchProductesQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchProductesController.clear();
+                        setState(() => _searchProductesQuery = '');
+                      },
+                    )
+                  : null,
+              border: const OutlineInputBorder(),
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
             ),
-          )
-        : ListView.builder(
+            onChanged: (value) {
+              setState(() => _searchProductesQuery = value);
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          child: Row(
+            children: [
+              Text(
+                '${productes.length} productes',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: productes.isEmpty
+              ? const Center(
+                  child: Text(
+                    'No hi ha productes',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                )
+              : ListView.builder(
             padding: const EdgeInsets.only(bottom: 80),
             itemCount: productes.length,
             itemBuilder: (context, index) {
@@ -680,7 +795,10 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               );
             },
-          );
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> _deleteProducte(dynamic producte) async {
@@ -1040,6 +1158,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchBotiguesController.dispose();
+    _searchProductesController.dispose();
     super.dispose();
   }
 }

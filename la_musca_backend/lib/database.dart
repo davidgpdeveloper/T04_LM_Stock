@@ -33,14 +33,8 @@ class Database {
   /// a l'esquema original del projecte Java.
   Future<void> _ensureSchema() async {
     final migrations = [
-      "ALTER TABLE botigues ADD COLUMN b_NOM_COMPLET VARCHAR(255) DEFAULT ''",
-      "ALTER TABLE botigues ADD COLUMN b_POBLACIO VARCHAR(99) DEFAULT ''",
-      "ALTER TABLE botigues ADD COLUMN b_CODI_POSTAL VARCHAR(10) DEFAULT ''",
-      "ALTER TABLE botigues ADD COLUMN b_OBSERVACIONS VARCHAR(500) DEFAULT ''",
       "ALTER TABLE botigues ADD COLUMN b_IMATGE MEDIUMTEXT DEFAULT NULL",
-      "ALTER TABLE productes ADD COLUMN p_QUANTITAT INT DEFAULT 0",
       "ALTER TABLE productes ADD COLUMN p_IMATGE MEDIUMTEXT DEFAULT NULL",
-      "ALTER TABLE comandes ADD COLUMN c_OBSERVACIONS VARCHAR(500) DEFAULT ''",
     ];
 
     for (final sql in migrations) {

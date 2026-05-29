@@ -1,0 +1,13 @@
+LaMusca-ORIGINAL/
+.DS_Store
+build/
+la_musca_stock/.dart_tool/
+la_musca_stock/build/
+la_musca_stock/.flutter-plugins
+la_musca_stock/.flutter-plugins-dependencies
+la_musca_stock/.packages
+la_musca_stock/android/.gradle/
+la_musca_stock/ios/Pods/
+la_musca_stock/ios/.symlinks/
+la_musca_stock/windows/flutter/ephemeral/
+*.iml

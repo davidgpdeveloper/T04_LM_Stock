@@ -6,6 +6,7 @@ import '../repositories/botiga_repository.dart';
 import '../repositories/producte_repository.dart';
 import '../repositories/comanda_repository.dart';
 import '../widgets/delete_confirmation_dialog.dart';
+import '../widgets/export_button.dart';
 import 'login_screen.dart';
 import 'botiga_form_screen.dart';
 import 'producte_form_screen.dart';
@@ -354,6 +355,24 @@ class _HomeScreenState extends State<HomeScreen>
                 '${comandes.length} comandes',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
+              const Spacer(),
+              if (comandes.isNotEmpty)
+                ExportButton(
+                  title: 'Comandes',
+                  headers: const ['Albarà', 'Botiga', 'Producte', 'Quantitat', 'Estat', 'Data'],
+                  rows: comandes.map((c) {
+                    final botiga = botigaRepo.getById(c.botigaId);
+                    final producte = producteRepo.getById(c.producteId);
+                    return [
+                      c.albara,
+                      botiga?.nom ?? 'Desconeguda',
+                      producte?.nom ?? 'Desconegut',
+                      c.quantitat.toString(),
+                      c.estat,
+                      '${c.data.day.toString().padLeft(2, '0')}/${c.data.month.toString().padLeft(2, '0')}/${c.data.year}',
+                    ];
+                  }).toList(),
+                ),
             ],
           ),
         ),
@@ -585,6 +604,22 @@ class _HomeScreenState extends State<HomeScreen>
                 '${botigues.length} botigues',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
+              const Spacer(),
+              if (botigues.isNotEmpty)
+                ExportButton(
+                  title: 'Botigues',
+                  headers: const ['Nom', 'Nom fiscal', 'NIF', 'Adreça', 'Població', 'Codi postal', 'Correu', 'Telèfon'],
+                  rows: botigues.map((b) => [
+                    b.nom,
+                    b.nomFiscal,
+                    b.nif,
+                    b.adreca,
+                    b.poblacio,
+                    b.codiPostal,
+                    b.mail,
+                    b.telefon,
+                  ]).toList(),
+                ),
             ],
           ),
         ),
@@ -779,6 +814,17 @@ class _HomeScreenState extends State<HomeScreen>
                 '${productes.length} productes',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
+              const Spacer(),
+              if (productes.isNotEmpty)
+                ExportButton(
+                  title: 'Productes',
+                  headers: const ['Nom', 'Quantitat', 'Descripció'],
+                  rows: productes.map((p) => [
+                    p.nom,
+                    p.quantitat.toString(),
+                    p.descripcio,
+                  ]).toList(),
+                ),
             ],
           ),
         ),
@@ -1087,11 +1133,28 @@ class _HomeScreenState extends State<HomeScreen>
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-              child: Text(
-                'Estoc de: ${botiga?.nom ?? ""}',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Estoc de: ${botiga?.nom ?? ""}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
+                  ),
+                  ExportButton(
+                    title: 'Consulta botiga - ${botiga?.nom ?? ""}',
+                    headers: const ['Producte', 'Total quantitat'],
+                    rows: entries.map((e) {
+                      final producte = producteRepo.getById(e.key);
+                      return [
+                        producte?.nom ?? 'Desconegut',
+                        e.value.toString(),
+                      ];
+                    }).toList(),
+                  ),
+                ],
               ),
             ),
             SizedBox(
@@ -1169,11 +1232,28 @@ class _HomeScreenState extends State<HomeScreen>
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-              child: Text(
-                'Estoc de: ${producte?.nom ?? ""}',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Estoc de: ${producte?.nom ?? ""}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
+                  ),
+                  ExportButton(
+                    title: 'Consulta producte - ${producte?.nom ?? ""}',
+                    headers: const ['Botiga', 'Total quantitat'],
+                    rows: entries.map((e) {
+                      final botiga = botigaRepo.getById(e.key);
+                      return [
+                        botiga?.nom ?? 'Desconeguda',
+                        e.value.toString(),
+                      ];
+                    }).toList(),
+                  ),
+                ],
               ),
             ),
             SizedBox(

@@ -69,5 +69,7 @@ class Comanda {
     'ENTREGAT',
     'RECOLLIT',
     'VENUT',
+    'MAGATZEM IN',
+    'MAGATZEM OUT',
   ];
 }

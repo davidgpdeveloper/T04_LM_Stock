@@ -27,10 +27,18 @@ class _HomeScreenState extends State<HomeScreen>
   int? _filtreProducteId;
   String? _filtreAlbara;
 
+  // Llista d'albarans disponibles segons la botiga seleccionada
+  List<String> _albaransDisponibles = [];
+
+  // Filtres de consultes d'estoc
+  String _consultaTipus = 'botiga'; // 'botiga' o 'producte'
+  int? _consultaBotigaId;
+  int? _consultaProducteId;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
       setState(() {});
     });
@@ -71,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen>
           MaterialPageRoute(builder: (_) => const ProducteFormScreen()),
         );
         break;
+      // La pestanya 3 (Consultes) no té botó d'afegir
     }
   }
 
@@ -110,6 +119,7 @@ class _HomeScreenState extends State<HomeScreen>
             Tab(icon: Icon(Icons.receipt_long), text: 'Comandes'),
             Tab(icon: Icon(Icons.store), text: 'Botigues'),
             Tab(icon: Icon(Icons.inventory), text: 'Productes'),
+            Tab(icon: Icon(Icons.analytics), text: 'Consultes'),
           ],
         ),
       ),
@@ -120,10 +130,11 @@ class _HomeScreenState extends State<HomeScreen>
                 _buildComandesTab(),
                 _buildBotiguesTab(),
                 _buildProductesTab(),
+                _buildConsultesTab(),
               ],
             )
           : const Center(child: CircularProgressIndicator()),
-      floatingActionButton: _dataLoaded
+      floatingActionButton: _dataLoaded && _tabController.index != 3
           ? FloatingActionButton.extended(
               onPressed: _onAddPressed,
               icon: const Icon(Icons.add),
@@ -153,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen>
     if (_filtreAlbara != null && _filtreAlbara!.isNotEmpty) {
       comandes = comandes
           .where(
-            (c) => c.albara.toLowerCase().contains(_filtreAlbara!.toLowerCase()),
+            (c) => c.albara == _filtreAlbara,
           )
           .toList();
     }
@@ -175,6 +186,7 @@ class _HomeScreenState extends State<HomeScreen>
                 SizedBox(
                   width: 200,
                   child: DropdownButtonFormField<int?>(
+                    key: ValueKey('filtre_botiga_$_filtreBotigaId'),
                     initialValue: _filtreBotigaId,
                     isExpanded: true,
                     decoration: const InputDecoration(
@@ -204,6 +216,18 @@ class _HomeScreenState extends State<HomeScreen>
                     onChanged: (value) {
                       setState(() {
                         _filtreBotigaId = value;
+                        _filtreAlbara = null;
+                        // Actualitzar albarans disponibles segons la botiga
+                        if (value != null) {
+                          _albaransDisponibles = comandaRepo.comandes
+                              .where((c) => c.botigaId == value)
+                              .map((c) => c.albara)
+                              .toSet()
+                              .toList()
+                            ..sort();
+                        } else {
+                          _albaransDisponibles = [];
+                        }
                       });
                     },
                   ),
@@ -211,6 +235,7 @@ class _HomeScreenState extends State<HomeScreen>
                 SizedBox(
                   width: 200,
                   child: DropdownButtonFormField<int?>(
+                    key: ValueKey('filtre_producte_$_filtreProducteId'),
                     initialValue: _filtreProducteId,
                     isExpanded: true,
                     decoration: const InputDecoration(
@@ -245,8 +270,11 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
                 SizedBox(
-                  width: 160,
-                  child: TextField(
+                  width: 200,
+                  child: DropdownButtonFormField<String?>(
+                    key: ValueKey('filtre_albara_$_filtreAlbara $_filtreBotigaId'),
+                    initialValue: _filtreAlbara,
+                    isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: 'Albarà',
                       border: OutlineInputBorder(),
@@ -255,13 +283,33 @@ class _HomeScreenState extends State<HomeScreen>
                         horizontal: 12,
                         vertical: 8,
                       ),
-                      prefixIcon: Icon(Icons.search, size: 20),
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        _filtreAlbara = value.isEmpty ? null : value;
-                      });
-                    },
+                    items: [
+                      DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text(
+                          _filtreBotigaId != null
+                              ? 'Tots els albarans'
+                              : 'Selecciona botiga primer',
+                        ),
+                      ),
+                      ..._albaransDisponibles.map(
+                        (a) => DropdownMenuItem<String?>(
+                          value: a,
+                          child: Text(
+                            a,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                    onChanged: _filtreBotigaId != null
+                        ? (value) {
+                            setState(() {
+                              _filtreAlbara = value;
+                            });
+                          }
+                        : null,
                   ),
                 ),
                 TextButton.icon(
@@ -270,6 +318,7 @@ class _HomeScreenState extends State<HomeScreen>
                       _filtreBotigaId = null;
                       _filtreProducteId = null;
                       _filtreAlbara = null;
+                      _albaransDisponibles = [];
                     });
                   },
                   icon: const Icon(Icons.clear_all),
@@ -379,6 +428,14 @@ class _HomeScreenState extends State<HomeScreen>
       case 'VENUT':
         icon = Icons.point_of_sale;
         color = Colors.blue;
+        break;
+      case 'MAGATZEM IN':
+        icon = Icons.move_to_inbox;
+        color = Colors.teal;
+        break;
+      case 'MAGATZEM OUT':
+        icon = Icons.outbox;
+        color = Colors.deepPurple;
         break;
       default:
         icon = Icons.help_outline;
@@ -632,6 +689,337 @@ class _HomeScreenState extends State<HomeScreen>
         );
       }
     }
+  }
+
+  // ─── CONSULTES TAB ──────────────────────────────────────────────
+
+  Widget _buildConsultesTab() {
+    final comandaRepo = context.watch<ComandaRepository>();
+    final botigaRepo = context.watch<BotigaRepository>();
+    final producteRepo = context.watch<ProducteRepository>();
+
+    return Column(
+      children: [
+        // Filtre de consulta
+        Card(
+          margin: const EdgeInsets.all(8),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Tipus de consulta
+                Row(
+                  children: [
+                    const Text(
+                      'Consulta per:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 16),
+                    ChoiceChip(
+                      label: const Text('Botiga'),
+                      selected: _consultaTipus == 'botiga',
+                      onSelected: (selected) {
+                        if (selected) {
+                          setState(() {
+                            _consultaTipus = 'botiga';
+                            _consultaProducteId = null;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ChoiceChip(
+                      label: const Text('Producte'),
+                      selected: _consultaTipus == 'producte',
+                      onSelected: (selected) {
+                        if (selected) {
+                          setState(() {
+                            _consultaTipus = 'producte';
+                            _consultaBotigaId = null;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Selector segons el tipus
+                if (_consultaTipus == 'botiga')
+                  SizedBox(
+                    width: 300,
+                    child: DropdownButtonFormField<int?>(
+                      key: ValueKey('consulta_botiga_$_consultaBotigaId'),
+                      initialValue: _consultaBotigaId,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Selecciona una botiga',
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: botigaRepo.botigues.map(
+                        (b) => DropdownMenuItem<int?>(
+                          value: b.id,
+                          child: Text(
+                            b.nom,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _consultaBotigaId = value;
+                        });
+                      },
+                    ),
+                  ),
+                if (_consultaTipus == 'producte')
+                  SizedBox(
+                    width: 300,
+                    child: DropdownButtonFormField<int?>(
+                      key: ValueKey('consulta_producte_$_consultaProducteId'),
+                      initialValue: _consultaProducteId,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Selecciona un producte',
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: producteRepo.productes.map(
+                        (p) => DropdownMenuItem<int?>(
+                          value: p.id,
+                          child: Text(
+                            p.nom,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _consultaProducteId = value;
+                        });
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        // Resultats
+        Expanded(
+          child: _buildConsultesResultats(
+            comandaRepo,
+            botigaRepo,
+            producteRepo,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Genera els resultats de les consultes d'estoc.
+  Widget _buildConsultesResultats(
+    ComandaRepository comandaRepo,
+    BotigaRepository botigaRepo,
+    ProducteRepository producteRepo,
+  ) {
+    if (_consultaTipus == 'botiga' && _consultaBotigaId != null) {
+      // Consulta per botiga: total quantitat per producte (com consultaBotigaSQL)
+      final comandes = comandaRepo.getByBotigaId(_consultaBotigaId!);
+      final botiga = botigaRepo.getById(_consultaBotigaId!);
+      final Map<int, int> totalPerProducte = {};
+      for (final c in comandes) {
+        totalPerProducte[c.producteId] =
+            (totalPerProducte[c.producteId] ?? 0) + c.quantitat;
+      }
+
+      if (totalPerProducte.isEmpty) {
+        return Center(
+          child: Text(
+            'No hi ha comandes per a ${botiga?.nom ?? "aquesta botiga"}',
+            style: const TextStyle(color: Colors.grey),
+          ),
+        );
+      }
+
+      final entries = totalPerProducte.entries.toList()
+        ..sort((a, b) {
+          final nomA = producteRepo.getById(a.key)?.nom ?? '';
+          final nomB = producteRepo.getById(b.key)?.nom ?? '';
+          return nomA.compareTo(nomB);
+        });
+
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Text(
+                'Estoc de: ${botiga?.nom ?? ""}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: DataTable(
+                columnSpacing: 24,
+                columns: const [
+                  DataColumn(label: Text('Producte')),
+                  DataColumn(label: Text('Total quantitat'), numeric: true),
+                ],
+                rows: [
+                  ...entries.map((e) {
+                    final producte = producteRepo.getById(e.key);
+                    return DataRow(cells: [
+                      DataCell(Text(producte?.nom ?? 'Desconegut')),
+                      DataCell(Text(
+                        e.value.toString(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: e.value < 0 ? Colors.red : Colors.green[700],
+                        ),
+                      )),
+                    ]);
+                  }),
+                  // Fila total
+                  DataRow(
+                    color: WidgetStateProperty.all(
+                      Colors.grey.withValues(alpha: 0.1),
+                    ),
+                    cells: [
+                      const DataCell(Text(
+                        'TOTAL',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )),
+                      DataCell(Text(
+                        entries
+                            .fold<int>(0, (sum, e) => sum + e.value)
+                            .toString(),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      )),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (_consultaTipus == 'producte' && _consultaProducteId != null) {
+      // Consulta per producte: total quantitat per botiga (com consultaProducteSQL)
+      final comandes = comandaRepo.getByProducteId(_consultaProducteId!);
+      final producte = producteRepo.getById(_consultaProducteId!);
+      final Map<int, int> totalPerBotiga = {};
+      for (final c in comandes) {
+        totalPerBotiga[c.botigaId] =
+            (totalPerBotiga[c.botigaId] ?? 0) + c.quantitat;
+      }
+
+      if (totalPerBotiga.isEmpty) {
+        return Center(
+          child: Text(
+            'No hi ha comandes per a ${producte?.nom ?? "aquest producte"}',
+            style: const TextStyle(color: Colors.grey),
+          ),
+        );
+      }
+
+      final entries = totalPerBotiga.entries.toList()
+        ..sort((a, b) {
+          final nomA = botigaRepo.getById(a.key)?.nom ?? '';
+          final nomB = botigaRepo.getById(b.key)?.nom ?? '';
+          return nomA.compareTo(nomB);
+        });
+
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Text(
+                'Estoc de: ${producte?.nom ?? ""}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: DataTable(
+                columnSpacing: 24,
+                columns: const [
+                  DataColumn(label: Text('Botiga')),
+                  DataColumn(label: Text('Total quantitat'), numeric: true),
+                ],
+                rows: [
+                  ...entries.map((e) {
+                    final botiga = botigaRepo.getById(e.key);
+                    return DataRow(cells: [
+                      DataCell(Text(botiga?.nom ?? 'Desconeguda')),
+                      DataCell(Text(
+                        e.value.toString(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: e.value < 0 ? Colors.red : Colors.green[700],
+                        ),
+                      )),
+                    ]);
+                  }),
+                  // Fila total
+                  DataRow(
+                    color: WidgetStateProperty.all(
+                      Colors.grey.withValues(alpha: 0.1),
+                    ),
+                    cells: [
+                      const DataCell(Text(
+                        'TOTAL',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )),
+                      DataCell(Text(
+                        entries
+                            .fold<int>(0, (sum, e) => sum + e.value)
+                            .toString(),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      )),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Estat inicial: cap filtre seleccionat
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search, size: 64, color: Colors.grey),
+          SizedBox(height: 16),
+          Text(
+            'Selecciona una botiga o un producte per consultar l\'estoc',
+            style: TextStyle(color: Colors.grey, fontSize: 16),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
   }
 
   @override

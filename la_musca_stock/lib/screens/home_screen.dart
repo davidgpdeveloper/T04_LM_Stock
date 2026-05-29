@@ -26,10 +26,6 @@ class _HomeScreenState extends State<HomeScreen>
   // Filtres de comandes
   int? _filtreBotigaId;
   int? _filtreProducteId;
-  String? _filtreAlbara;
-
-  // Llista d'albarans disponibles segons la botiga seleccionada
-  List<String> _albaransDisponibles = [];
 
   // Cercadors de botigues i productes
   final TextEditingController _searchBotiguesController = TextEditingController();
@@ -168,13 +164,6 @@ class _HomeScreenState extends State<HomeScreen>
       comandes =
           comandes.where((c) => c.producteId == _filtreProducteId).toList();
     }
-    if (_filtreAlbara != null && _filtreAlbara!.isNotEmpty) {
-      comandes = comandes
-          .where(
-            (c) => c.albara == _filtreAlbara,
-          )
-          .toList();
-    }
 
     comandes.sort((a, b) => b.data.compareTo(a.data));
 
@@ -190,10 +179,11 @@ class _HomeScreenState extends State<HomeScreen>
               runSpacing: 8,
               crossAxisAlignment: WrapCrossAlignment.end,
               children: [
+                // Botigues disponibles segons el producte seleccionat
                 SizedBox(
                   width: 200,
                   child: DropdownButtonFormField<int?>(
-                    key: ValueKey('filtre_botiga_$_filtreBotigaId'),
+                    key: ValueKey('filtre_botiga_$_filtreBotigaId$_filtreProducteId'),
                     initialValue: _filtreBotigaId,
                     isExpanded: true,
                     decoration: const InputDecoration(
@@ -210,7 +200,13 @@ class _HomeScreenState extends State<HomeScreen>
                         value: null,
                         child: Text('Totes les botigues'),
                       ),
-                      ...botigaRepo.botigues.map(
+                      ...(_filtreProducteId != null
+                          ? botigaRepo.botigues.where((b) =>
+                              comandaRepo.comandes.any((c) =>
+                                  c.producteId == _filtreProducteId &&
+                                  c.botigaId == b.id))
+                          : botigaRepo.botigues
+                      ).map(
                         (b) => DropdownMenuItem<int?>(
                           value: b.id,
                           child: Text(
@@ -223,26 +219,22 @@ class _HomeScreenState extends State<HomeScreen>
                     onChanged: (value) {
                       setState(() {
                         _filtreBotigaId = value;
-                        _filtreAlbara = null;
-                        // Actualitzar albarans disponibles segons la botiga
-                        if (value != null) {
-                          _albaransDisponibles = comandaRepo.comandes
-                              .where((c) => c.botigaId == value)
-                              .map((c) => c.albara)
-                              .toSet()
-                              .toList()
-                            ..sort();
-                        } else {
-                          _albaransDisponibles = [];
+                        // Verificar que el producte seleccionat segueix sent vàlid
+                        if (_filtreProducteId != null && value != null) {
+                          final valid = comandaRepo.comandes.any((c) =>
+                              c.botigaId == value &&
+                              c.producteId == _filtreProducteId);
+                          if (!valid) _filtreProducteId = null;
                         }
                       });
                     },
                   ),
                 ),
+                // Productes disponibles segons la botiga seleccionada
                 SizedBox(
                   width: 200,
                   child: DropdownButtonFormField<int?>(
-                    key: ValueKey('filtre_producte_$_filtreProducteId'),
+                    key: ValueKey('filtre_producte_$_filtreProducteId$_filtreBotigaId'),
                     initialValue: _filtreProducteId,
                     isExpanded: true,
                     decoration: const InputDecoration(
@@ -259,7 +251,13 @@ class _HomeScreenState extends State<HomeScreen>
                         value: null,
                         child: Text('Tots els productes'),
                       ),
-                      ...producteRepo.productes.map(
+                      ...(_filtreBotigaId != null
+                          ? producteRepo.productes.where((p) =>
+                              comandaRepo.comandes.any((c) =>
+                                  c.botigaId == _filtreBotigaId &&
+                                  c.producteId == p.id))
+                          : producteRepo.productes
+                      ).map(
                         (p) => DropdownMenuItem<int?>(
                           value: p.id,
                           child: Text(
@@ -272,51 +270,15 @@ class _HomeScreenState extends State<HomeScreen>
                     onChanged: (value) {
                       setState(() {
                         _filtreProducteId = value;
+                        // Verificar que la botiga seleccionada segueix sent vàlida
+                        if (_filtreBotigaId != null && value != null) {
+                          final valid = comandaRepo.comandes.any((c) =>
+                              c.producteId == value &&
+                              c.botigaId == _filtreBotigaId);
+                          if (!valid) _filtreBotigaId = null;
+                        }
                       });
                     },
-                  ),
-                ),
-                SizedBox(
-                  width: 200,
-                  child: DropdownButtonFormField<String?>(
-                    key: ValueKey('filtre_albara_$_filtreAlbara $_filtreBotigaId'),
-                    initialValue: _filtreAlbara,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Albarà',
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                    items: [
-                      DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text(
-                          _filtreBotigaId != null
-                              ? 'Tots els albarans'
-                              : 'Selecciona botiga primer',
-                        ),
-                      ),
-                      ..._albaransDisponibles.map(
-                        (a) => DropdownMenuItem<String?>(
-                          value: a,
-                          child: Text(
-                            a,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    ],
-                    onChanged: _filtreBotigaId != null
-                        ? (value) {
-                            setState(() {
-                              _filtreAlbara = value;
-                            });
-                          }
-                        : null,
                   ),
                 ),
                 TextButton.icon(
@@ -324,8 +286,6 @@ class _HomeScreenState extends State<HomeScreen>
                     setState(() {
                       _filtreBotigaId = null;
                       _filtreProducteId = null;
-                      _filtreAlbara = null;
-                      _albaransDisponibles = [];
                     });
                   },
                   icon: const Icon(Icons.clear_all),

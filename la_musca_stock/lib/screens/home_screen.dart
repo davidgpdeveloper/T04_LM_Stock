@@ -37,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen>
   String _consultaTipus = 'botiga'; // 'botiga' o 'producte'
   int? _consultaBotigaId;
   int? _consultaProducteId;
+  String? _consultaEstat; // Filtre per estat a consulta per producte
 
   @override
   void initState() {
@@ -830,6 +831,7 @@ class _HomeScreenState extends State<HomeScreen>
                           setState(() {
                             _consultaTipus = 'producte';
                             _consultaBotigaId = null;
+                            _consultaEstat = null;
                           });
                         }
                       },
@@ -870,8 +872,7 @@ class _HomeScreenState extends State<HomeScreen>
                       },
                     ),
                   ),
-                if (_consultaTipus == 'producte')
-                  SizedBox(
+                if (_consultaTipus == 'producte') ...[                  SizedBox(
                     width: 300,
                     child: DropdownButtonFormField<int?>(
                       key: ValueKey('consulta_producte_$_consultaProducteId'),
@@ -898,10 +899,41 @@ class _HomeScreenState extends State<HomeScreen>
                       onChanged: (value) {
                         setState(() {
                           _consultaProducteId = value;
+                          _consultaEstat = null;
                         });
                       },
                     ),
                   ),
+                  // Filtre per estat del producte
+                  if (_consultaProducteId != null) ...[                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Tots'),
+                          selected: _consultaEstat == null,
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() => _consultaEstat = null);
+                            }
+                          },
+                        ),
+                        ...Comanda.estatsDisponibles.map(
+                          (estat) => ChoiceChip(
+                            label: Text(estat),
+                            selected: _consultaEstat == estat,
+                            onSelected: (selected) {
+                              setState(() {
+                                _consultaEstat = selected ? estat : null;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
               ],
             ),
           ),
@@ -972,8 +1004,7 @@ class _HomeScreenState extends State<HomeScreen>
                   DataColumn(label: Text('Producte')),
                   DataColumn(label: Text('Total quantitat'), numeric: true),
                 ],
-                rows: [
-                  ...entries.map((e) {
+                rows: entries.map((e) {
                     final producte = producteRepo.getById(e.key);
                     return DataRow(cells: [
                       DataCell(Text(producte?.nom ?? 'Desconegut')),
@@ -985,34 +1016,18 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       )),
                     ]);
-                  }),
-                  // Fila total
-                  DataRow(
-                    color: WidgetStateProperty.all(
-                      Colors.grey.withValues(alpha: 0.1),
-                    ),
-                    cells: [
-                      const DataCell(Text(
-                        'TOTAL',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )),
-                      DataCell(Text(
-                        entries
-                            .fold<int>(0, (sum, e) => sum + e.value)
-                            .toString(),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      )),
-                    ],
-                  ),
-                ],
+                  }).toList(),
               ),
             ),
           ],
         ),
       );
     } else if (_consultaTipus == 'producte' && _consultaProducteId != null) {
-      // Consulta per producte: total quantitat per botiga (com consultaProducteSQL)
-      final comandes = comandaRepo.getByProducteId(_consultaProducteId!);
+      // Consulta per producte: total quantitat per botiga, amb filtre d'estat opcional
+      final totesComandes = comandaRepo.getByProducteId(_consultaProducteId!);
+      final comandes = _consultaEstat != null
+          ? totesComandes.where((c) => c.estat == _consultaEstat).toList()
+          : totesComandes;
       final producte = producteRepo.getById(_consultaProducteId!);
       final Map<int, int> totalPerBotiga = {};
       for (final c in comandes) {

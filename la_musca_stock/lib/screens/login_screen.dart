@@ -55,16 +55,19 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
-          child: Card(
-            margin: const EdgeInsets.all(32),
-            elevation: 8,
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 400),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Card(
+                margin: const EdgeInsets.all(32),
+                elevation: 8,
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                     const Icon(
                       Icons.inventory_2,
                       size: 80,
@@ -175,6 +178,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'v1.0.0',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[400],
+                ),
+              ),
+            ],
           ),
         ),
       ),

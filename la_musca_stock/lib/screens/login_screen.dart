@@ -89,15 +89,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
                     SwitchListTile(
                       title: const Text('Mode demostració'),
-                      subtitle: Text(
-                        _modeDemo
-                            ? 'Carregarà dades de prova'
-                            : 'Connectarà a la base de dades',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
                       value: _modeDemo,
                       onChanged: (value) {
                         setState(() {
@@ -116,6 +107,48 @@ class _LoginScreenState extends State<LoginScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 4,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _modeDemo
+                            ? Colors.orange.shade50
+                            : Colors.deepPurple.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: _modeDemo
+                              ? Colors.orange.shade200
+                              : Colors.deepPurple.shade200,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _modeDemo ? Icons.info_outline : Icons.cloud_done,
+                            size: 16,
+                            color: _modeDemo
+                                ? Colors.orange.shade700
+                                : Colors.deepPurple.shade700,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _modeDemo
+                                ? 'Carregarà dades de prova'
+                                : 'Connectarà a la base de dades',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: _modeDemo
+                                  ? Colors.orange.shade700
+                                  : Colors.deepPurple.shade700,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 16),

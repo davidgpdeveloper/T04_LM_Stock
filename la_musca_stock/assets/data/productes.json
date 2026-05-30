@@ -1,17 +1,6 @@
 [
-  {"id": 1, "nom": "CD Cançons del Vent", "quantitat": 500, "descripcio": "Àlbum musical principal"},
-  {"id": 2, "nom": "CD Melodies de Tardor", "quantitat": 300, "descripcio": "Àlbum de temporada"},
-  {"id": 3, "nom": "Llibre El Drac Petit", "quantitat": 400, "descripcio": "Conte infantil il·lustrat"},
-  {"id": 4, "nom": "Samarreta Blava M", "quantitat": 60, "descripcio": "Samarreta talla M color blau"},
-  {"id": 5, "nom": "Samarreta Blava L", "quantitat": 55, "descripcio": "Samarreta talla L color blau"},
-  {"id": 6, "nom": "Samarreta Vermella S", "quantitat": 45, "descripcio": "Samarreta talla S color vermell"},
-  {"id": 7, "nom": "Xapa Rodona Logo", "quantitat": 250, "descripcio": "Xapa amb el logotip de l'editorial"},
-  {"id": 8, "nom": "Iman Rectangular", "quantitat": 180, "descripcio": "Iman de nevera estàndard"},
-  {"id": 9, "nom": "Iman Especial Festes", "quantitat": 120, "descripcio": "Edició limitada per festes"},
-  {"id": 10, "nom": "Punt de Lectura", "quantitat": 350, "descripcio": "Punt de llibre il·lustrat"},
-  {"id": 11, "nom": "CD Ritmes del Mar", "quantitat": 200, "descripcio": "Àlbum infantil de sons marins"},
-  {"id": 12, "nom": "Vinil Edició Especial", "quantitat": 75, "descripcio": "Disc de vinil col·leccionista"},
-  {"id": 13, "nom": "Pòster Gran Format", "quantitat": 140, "descripcio": "Pòster 70x100 cm"},
-  {"id": 14, "nom": "Bossa de Tela", "quantitat": 100, "descripcio": "Bossa reutilitzable amb disseny"},
-  {"id": 15, "nom": "Llibre Jocs de Taula", "quantitat": 220, "descripcio": "Guia de jocs de taula clàssics"}
+  {"id": 1, "nom": "TEST - CD Do Re Mi Fa Bo", "quantitat": 250, "descripcio": "Àlbum musical infantil amb cançons educatives"},
+  {"id": 2, "nom": "TEST - Al camp!", "quantitat": 180, "descripcio": "Espectacle musical sobre la natura i el camp"},
+  {"id": 3, "nom": "TEST - El nen de les bledes", "quantitat": 320, "descripcio": "Conte infantil il·lustrat sobre alimentació saludable"},
+  {"id": 4, "nom": "TEST - Bossa Espluguina", "quantitat": 150, "descripcio": "Bossa de tela amb disseny exclusiu d'Esplugues"}
 ]

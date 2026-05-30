@@ -35,8 +35,8 @@ class _HomeScreenState extends State<HomeScreen>
   String _searchBotiguesQuery = '';
   String _searchProductesQuery = '';
 
-  // Color de fons per a la botiga 'La Musca magatzem'
-  static const String _magatzemName = 'La Musca magatzem';
+  // ID de la botiga 'La Musca magatzem' per identificar-la a la UI
+  static const int _magatzemId = 25;
 
   // Filtres de consultes d'estoc
   String _consultaTipus = 'botiga'; // 'botiga' o 'producte'
@@ -398,7 +398,7 @@ class _HomeScreenState extends State<HomeScreen>
                         horizontal: 8,
                         vertical: 4,
                       ),
-                      color: botiga?.nom == _magatzemName
+                      color: botiga?.id == _magatzemId
                           ? Theme.of(context).colorScheme.secondaryContainer
                           : null,
                       child: ListTile(
@@ -641,7 +641,7 @@ class _HomeScreenState extends State<HomeScreen>
                   horizontal: 8,
                   vertical: 4,
                 ),
-                color: botiga.nom == _magatzemName
+                color: botiga.id == _magatzemId
                     ? Theme.of(context).colorScheme.secondaryContainer
                     : null,
                 child: ExpansionTile(
@@ -1199,14 +1199,13 @@ class _HomeScreenState extends State<HomeScreen>
       // Per 'La Musca magatzem' (ID 25) amb estat 'Tots':
       // Calcular MAGATZEM IN (del magatzem) - sumatori de TOTS els ENTREGAT (de totes les botigues)
       if (_consultaEstat == null) {
-        const magatzemId = 25;
         final magatzemIn = totesComandes
-            .where((c) => c.botigaId == magatzemId && c.estat == 'MAGATZEM IN')
+            .where((c) => c.botigaId == _magatzemId && c.estat == 'MAGATZEM IN')
             .fold<int>(0, (sum, c) => sum + c.quantitat);
         final totalEntregat = totesComandes
             .where((c) => c.estat == 'ENTREGAT')
             .fold<int>(0, (sum, c) => sum + c.quantitat);
-        totalPerBotiga[magatzemId] = magatzemIn - totalEntregat;
+        totalPerBotiga[_magatzemId] = magatzemIn - totalEntregat;
       }
 
       if (totalPerBotiga.isEmpty) {
@@ -1268,7 +1267,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ...entries.map((e) {
                     final botiga = botigaRepo.getById(e.key);
                     return DataRow(
-                      color: botiga?.nom == _magatzemName
+                      color: botiga?.id == _magatzemId
                           ? WidgetStateProperty.all(
                               Theme.of(context).colorScheme.secondaryContainer,
                             )

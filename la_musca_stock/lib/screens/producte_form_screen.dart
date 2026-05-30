@@ -9,6 +9,9 @@ import '../widgets/image_picker_widget.dart';
 class ProducteFormScreen extends StatefulWidget {
   final Producte? producte;
 
+  // ID de la botiga magatzem
+  static const int magatzemId = 25;
+
   const ProducteFormScreen({super.key, this.producte});
 
   @override
@@ -186,9 +189,8 @@ class _ProducteFormScreenState extends State<ProducteFormScreen> {
   /// Busca l'últim albarà amb format 'MAG X' i incrementa el número.
   /// Si no en troba cap, genera 'MAG' + data + hora en mil·lisegons.
   String _generateMagatzemAlbara(ComandaRepository comandaRepo) {
-    const magatzemId = 25;
     final comandesMagatzem = comandaRepo.comandes
-        .where((c) => c.botigaId == magatzemId && c.albara.startsWith('MAG'))
+        .where((c) => c.botigaId == ProducteFormScreen.magatzemId && c.albara.startsWith('MAG'))
         .toList();
 
     // Buscar l'albarà amb el número més alt
@@ -215,7 +217,6 @@ class _ProducteFormScreenState extends State<ProducteFormScreen> {
 
   /// Crea una comanda automàtica al magatzem quan s'afegeix un producte nou.
   Future<void> _createAutoComanda(Producte producte) async {
-    const magatzemId = 25;
     final comandaRepo = context.read<ComandaRepository>();
     final albara = _generateMagatzemAlbara(comandaRepo);
 
@@ -223,7 +224,7 @@ class _ProducteFormScreenState extends State<ProducteFormScreen> {
       id: comandaRepo.nextId,
       albara: albara,
       data: DateTime.now(),
-      botigaId: magatzemId,
+      botigaId: ProducteFormScreen.magatzemId,
       producteId: producte.id,
       quantitat: producte.quantitat,
       estat: 'MAGATZEM IN',

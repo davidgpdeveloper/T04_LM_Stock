@@ -1219,6 +1219,9 @@ class _HomeScreenState extends State<HomeScreen>
 
       final entries = totalPerBotiga.entries.toList()
         ..sort((a, b) {
+          // Magatzem (id=25) sempre primer, després ordre alfabètic
+          if (a.key == _magatzemId) return -1;
+          if (b.key == _magatzemId) return 1;
           final nomA = botigaRepo.getById(a.key)?.nom ?? '';
           final nomB = botigaRepo.getById(b.key)?.nom ?? '';
           return nomA.compareTo(nomB);
@@ -1264,6 +1267,25 @@ class _HomeScreenState extends State<HomeScreen>
                   DataColumn(label: Text('Total quantitat'), numeric: true),
                 ],
                 rows: [
+                  // Fila TOTAL sempre primera
+                  DataRow(
+                    color: WidgetStateProperty.all(
+                      Colors.grey.withValues(alpha: 0.1),
+                    ),
+                    cells: [
+                      const DataCell(Text(
+                        'TOTAL',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )),
+                      DataCell(Text(
+                        entries
+                            .fold<int>(0, (sum, e) => sum + e.value)
+                            .toString(),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      )),
+                    ],
+                  ),
+                  // Magatzem (id=25) segon, després la resta alfabèticament
                   ...entries.map((e) {
                     final botiga = botigaRepo.getById(e.key);
                     return DataRow(
@@ -1283,24 +1305,6 @@ class _HomeScreenState extends State<HomeScreen>
                       )),
                     ]);
                   }),
-                  // Fila total
-                  DataRow(
-                    color: WidgetStateProperty.all(
-                      Colors.grey.withValues(alpha: 0.1),
-                    ),
-                    cells: [
-                      const DataCell(Text(
-                        'TOTAL',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )),
-                      DataCell(Text(
-                        entries
-                            .fold<int>(0, (sum, e) => sum + e.value)
-                            .toString(),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      )),
-                    ],
-                  ),
                 ],
               ),
             ),

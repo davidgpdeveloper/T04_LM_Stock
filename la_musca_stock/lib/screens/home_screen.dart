@@ -116,9 +116,30 @@ class _HomeScreenState extends State<HomeScreen>
             icon: const Icon(Icons.logout),
             tooltip: 'Tancar sessió',
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Tancar sessió'),
+                  content: const Text(
+                      'Estàs segur que vols tancar la sessió?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel·lar'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const LoginScreen()),
+                        );
+                      },
+                      child: const Text('Tancar sessió'),
+                    ),
+                  ],
+                ),
               );
             },
           ),

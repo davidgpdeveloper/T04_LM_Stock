@@ -7,6 +7,7 @@ import '../repositories/producte_repository.dart';
 import '../repositories/comanda_repository.dart';
 import '../widgets/delete_confirmation_dialog.dart';
 import '../widgets/export_button.dart';
+import '../widgets/searchable_dropdown.dart';
 import 'login_screen.dart';
 import 'botiga_form_screen.dart';
 import 'producte_form_screen.dart';
@@ -192,10 +193,9 @@ class _HomeScreenState extends State<HomeScreen>
                 // Botigues disponibles segons el producte seleccionat
                 SizedBox(
                   width: 200,
-                  child: DropdownButtonFormField<int?>(
-                    key: ValueKey('filtre_botiga_$_filtreBotigaId$_filtreProducteId'),
-                    initialValue: _filtreBotigaId,
-                    isExpanded: true,
+                  child: SearchableDropdown<int>(
+                    fieldKey: ValueKey('filtre_botiga_$_filtreBotigaId$_filtreProducteId'),
+                    value: _filtreBotigaId,
                     decoration: const InputDecoration(
                       labelText: 'Botiga',
                       border: OutlineInputBorder(),
@@ -206,10 +206,6 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     items: [
-                      const DropdownMenuItem<int?>(
-                        value: null,
-                        child: Text('Totes les botigues'),
-                      ),
                       ...(_filtreProducteId != null
                           ? botigaRepo.botigues.where((b) =>
                               comandaRepo.comandes.any((c) =>
@@ -217,12 +213,9 @@ class _HomeScreenState extends State<HomeScreen>
                                   c.botigaId == b.id))
                           : botigaRepo.botigues
                       ).map(
-                        (b) => DropdownMenuItem<int?>(
+                        (b) => SearchableDropdownItem<int>(
                           value: b.id,
-                          child: Text(
-                            b.nom,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          label: b.nom,
                         ),
                       ),
                     ],
@@ -243,10 +236,9 @@ class _HomeScreenState extends State<HomeScreen>
                 // Productes disponibles segons la botiga seleccionada
                 SizedBox(
                   width: 200,
-                  child: DropdownButtonFormField<int?>(
-                    key: ValueKey('filtre_producte_$_filtreProducteId$_filtreBotigaId'),
-                    initialValue: _filtreProducteId,
-                    isExpanded: true,
+                  child: SearchableDropdown<int>(
+                    fieldKey: ValueKey('filtre_producte_$_filtreProducteId$_filtreBotigaId'),
+                    value: _filtreProducteId,
                     decoration: const InputDecoration(
                       labelText: 'Producte',
                       border: OutlineInputBorder(),
@@ -257,10 +249,6 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     items: [
-                      const DropdownMenuItem<int?>(
-                        value: null,
-                        child: Text('Tots els productes'),
-                      ),
                       ...(_filtreBotigaId != null
                           ? producteRepo.productes.where((p) =>
                               comandaRepo.comandes.any((c) =>
@@ -268,12 +256,9 @@ class _HomeScreenState extends State<HomeScreen>
                                   c.producteId == p.id))
                           : producteRepo.productes
                       ).map(
-                        (p) => DropdownMenuItem<int?>(
+                        (p) => SearchableDropdownItem<int>(
                           value: p.id,
-                          child: Text(
-                            p.nom,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          label: p.nom,
                         ),
                       ),
                     ],
@@ -625,10 +610,21 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         Expanded(
           child: botigues.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No hi ha botigues',
-                    style: TextStyle(color: Colors.grey),
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'No hi ha botigues',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      Icon(
+                        Icons.search_off,
+                        size: 28,
+                        color: Colors.grey.shade400,
+                      ),
+                    ],
                   ),
                 )
               : ListView.builder(
@@ -830,10 +826,21 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         Expanded(
           child: productes.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No hi ha productes',
-                    style: TextStyle(color: Colors.grey),
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'No hi ha productes',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      Icon(
+                        Icons.search_off,
+                        size: 28,
+                        color: Colors.grey.shade400,
+                      ),
+                    ],
                   ),
                 )
               : ListView.builder(
@@ -987,10 +994,9 @@ class _HomeScreenState extends State<HomeScreen>
                 if (_consultaTipus == 'botiga')
                   SizedBox(
                     width: 300,
-                    child: DropdownButtonFormField<int?>(
-                      key: ValueKey('consulta_botiga_$_consultaBotigaId'),
-                      initialValue: _consultaBotigaId,
-                      isExpanded: true,
+                    child: SearchableDropdown<int>(
+                      fieldKey: ValueKey('consulta_botiga_$_consultaBotigaId'),
+                      value: _consultaBotigaId,
                       decoration: const InputDecoration(
                         labelText: 'Selecciona una botiga',
                         border: OutlineInputBorder(),
@@ -1001,12 +1007,9 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ),
                       items: botigaRepo.botigues.map(
-                        (b) => DropdownMenuItem<int?>(
+                        (b) => SearchableDropdownItem<int>(
                           value: b.id,
-                          child: Text(
-                            b.nom,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          label: b.nom,
                         ),
                       ).toList(),
                       onChanged: (value) {
@@ -1018,10 +1021,9 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 if (_consultaTipus == 'producte') ...[                  SizedBox(
                     width: 300,
-                    child: DropdownButtonFormField<int?>(
-                      key: ValueKey('consulta_producte_$_consultaProducteId'),
-                      initialValue: _consultaProducteId,
-                      isExpanded: true,
+                    child: SearchableDropdown<int>(
+                      fieldKey: ValueKey('consulta_producte_$_consultaProducteId'),
+                      value: _consultaProducteId,
                       decoration: const InputDecoration(
                         labelText: 'Selecciona un producte',
                         border: OutlineInputBorder(),
@@ -1032,12 +1034,9 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ),
                       items: producteRepo.productes.map(
-                        (p) => DropdownMenuItem<int?>(
+                        (p) => SearchableDropdownItem<int>(
                           value: p.id,
-                          child: Text(
-                            p.nom,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          label: p.nom,
                         ),
                       ).toList(),
                       onChanged: (value) {

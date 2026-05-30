@@ -4,6 +4,7 @@ import '../models/comanda.dart';
 import '../repositories/botiga_repository.dart';
 import '../repositories/producte_repository.dart';
 import '../repositories/comanda_repository.dart';
+import '../widgets/searchable_dropdown.dart';
 
 class ComandaFormScreen extends StatefulWidget {
   final Comanda? comanda;
@@ -173,8 +174,8 @@ class _ComandaFormScreenState extends State<ComandaFormScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<int>(
-                    initialValue: _selectedBotigaId,
+                  SearchableDropdown<int>(
+                    value: _selectedBotigaId,
                     decoration: const InputDecoration(
                       labelText: 'Botiga *',
                       border: OutlineInputBorder(),
@@ -182,9 +183,9 @@ class _ComandaFormScreenState extends State<ComandaFormScreen> {
                     ),
                     items: botigues
                         .map(
-                          (b) => DropdownMenuItem<int>(
+                          (b) => SearchableDropdownItem<int>(
                             value: b.id,
-                            child: Text(b.nom),
+                            label: b.nom,
                           ),
                         )
                         .toList(),
@@ -201,8 +202,8 @@ class _ComandaFormScreenState extends State<ComandaFormScreen> {
                     },
                   ),
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<int>(
-                    initialValue: _selectedProducteId,
+                  SearchableDropdown<int>(
+                    value: _selectedProducteId,
                     decoration: const InputDecoration(
                       labelText: 'Producte *',
                       border: OutlineInputBorder(),
@@ -210,9 +211,9 @@ class _ComandaFormScreenState extends State<ComandaFormScreen> {
                     ),
                     items: productes
                         .map(
-                          (p) => DropdownMenuItem<int>(
+                          (p) => SearchableDropdownItem<int>(
                             value: p.id,
-                            child: Text(p.nom),
+                            label: p.nom,
                           ),
                         )
                         .toList(),

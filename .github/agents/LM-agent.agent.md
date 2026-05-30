@@ -41,4 +41,13 @@ Antes de sugerir, analiza:
 - Fuera de alcance: si la consulta no involucra Flutter/Dart o el dominio de control de stock/clientes, indica al usuario que esta consulta está fuera del alcance de este agente y sugiere buscar un agente especializado en la tecnología solicitada.
 
 - Si vas a realizar cambios en el backend, primero explica claramente los cambios y espera que el usuario los apruebe antes de implementarlos.
+
+- Quiero que siempre preguntes si el usuario quiere que implemente la solución después de explicarla, en lugar de asumir que quieres implementarla directamente.
+
+- Al finalizar la implementación, haz un resumen de los cambios realizados y ejecuta pruebas para verificar que todo funciona correctamente. Si se detectan errores, corrígelos y vuelve a probar hasta que todo esté funcionando correctamente. Además, actualiza la documentación del proyecto para reflejar los cambios realizados.
+
+- Si en algún momento necesitas más información o contexto para realizar tu trabajo, no dudes en preguntar al usuario antes de proceder con cualquier análisis, búsqueda o implementación.
+
+- Al acabar todo, ejecuta la aplicación en Chrome. Si el backend está desactivado, arranca el backend y luego ejecuta la aplicación en Chrome. Si todo está ejecutándose, recarga la aplicación en Chrome para asegurarte de que los cambios se reflejen correctamente.
+
 </workflow>

@@ -2,6 +2,7 @@ import 'dart:convert';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -27,6 +28,9 @@ class ExportButton extends StatelessWidget {
       tooltip: 'Exportar / Imprimir',
       onSelected: (value) {
         switch (value) {
+          case 'copy':
+            _copyToClipboard(context);
+            break;
           case 'print':
             _printPdf();
             break;
@@ -39,6 +43,14 @@ class ExportButton extends StatelessWidget {
         }
       },
       itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'copy',
+          child: ListTile(
+            leading: Icon(Icons.copy),
+            title: Text('Copiar al porta-retalls'),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
         const PopupMenuItem(
           value: 'print',
           child: ListTile(
@@ -64,6 +76,22 @@ class ExportButton extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// Copia les dades al porta-retalls en format tabulat.
+  void _copyToClipboard(BuildContext context) {
+    final buffer = StringBuffer();
+    buffer.writeln(headers.join('\t'));
+    for (final row in rows) {
+      buffer.writeln(row.join('\t'));
+    }
+    Clipboard.setData(ClipboardData(text: buffer.toString()));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${rows.length} registres copiats al porta-retalls'),
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 

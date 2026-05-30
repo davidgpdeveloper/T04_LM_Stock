@@ -35,6 +35,10 @@ class Database {
     final migrations = [
       "ALTER TABLE botigues ADD COLUMN b_IMATGE MEDIUMTEXT DEFAULT NULL",
       "ALTER TABLE productes ADD COLUMN p_IMATGE MEDIUMTEXT DEFAULT NULL",
+      // Columna per identificar registres creats des de l'app nova
+      "ALTER TABLE botigues ADD COLUMN b_IS_NEW_APP TINYINT(1) DEFAULT NULL",
+      "ALTER TABLE productes ADD COLUMN p_IS_NEW_APP TINYINT(1) DEFAULT NULL",
+      "ALTER TABLE comandes ADD COLUMN c_IS_NEW_APP TINYINT(1) DEFAULT NULL",
     ];
 
     for (final sql in migrations) {

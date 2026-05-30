@@ -65,6 +65,8 @@ class _ProducteFormScreenState extends State<ProducteFormScreen> {
       quantitat: int.tryParse(_quantitatController.text.trim()) ?? 0,
       descripcio: _descripcioController.text.trim(),
       imatgeBase64: _imatgeBase64,
+      // Marcar com a registre creat des de l'app nova
+      isNewApp: _isEditing ? widget.producte?.isNewApp : true,
     );
 
     if (_isEditing) {
@@ -229,6 +231,8 @@ class _ProducteFormScreenState extends State<ProducteFormScreen> {
       quantitat: producte.quantitat,
       estat: 'MAGATZEM IN',
       observacions: 'Comanda auto-generada per registre de producte nou.',
+      // Marcar com a registre creat des de l'app nova
+      isNewApp: true,
     );
 
     await comandaRepo.add(comanda);

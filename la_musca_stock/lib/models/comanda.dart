@@ -7,6 +7,7 @@ class Comanda {
   int quantitat;
   String estat;
   String observacions;
+  bool? isNewApp;
 
   Comanda({
     required this.id,
@@ -17,6 +18,7 @@ class Comanda {
     required this.quantitat,
     required this.estat,
     this.observacions = '',
+    this.isNewApp,
   });
 
   factory Comanda.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class Comanda {
       quantitat: json['quantitat'] as int,
       estat: json['estat'] as String,
       observacions: json['observacions'] as String? ?? '',
+      isNewApp: json['is_new_app'] as bool?,
     );
   }
 
@@ -41,6 +44,7 @@ class Comanda {
         'quantitat': quantitat,
         'estat': estat,
         'observacions': observacions,
+        'is_new_app': isNewApp,
       };
 
   Comanda copyWith({
@@ -52,6 +56,7 @@ class Comanda {
     int? quantitat,
     String? estat,
     String? observacions,
+    bool? isNewApp,
   }) {
     return Comanda(
       id: id ?? this.id,
@@ -62,6 +67,7 @@ class Comanda {
       quantitat: quantitat ?? this.quantitat,
       estat: estat ?? this.estat,
       observacions: observacions ?? this.observacions,
+      isNewApp: isNewApp ?? this.isNewApp,
     );
   }
 

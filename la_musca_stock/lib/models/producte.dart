@@ -4,6 +4,7 @@ class Producte {
   int quantitat;
   String descripcio;
   String? imatgeBase64;
+  bool? isNewApp;
 
   Producte({
     required this.id,
@@ -11,6 +12,7 @@ class Producte {
     this.quantitat = 0,
     this.descripcio = '',
     this.imatgeBase64,
+    this.isNewApp,
   });
 
   factory Producte.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Producte {
       quantitat: json['quantitat'] as int? ?? 0,
       descripcio: json['descripcio'] as String? ?? '',
       imatgeBase64: json['imatge'] as String?,
+      isNewApp: json['is_new_app'] as bool?,
     );
   }
 
@@ -29,6 +32,7 @@ class Producte {
         'quantitat': quantitat,
         'descripcio': descripcio,
         'imatge': imatgeBase64,
+        'is_new_app': isNewApp,
       };
 
   Producte copyWith({
@@ -37,6 +41,7 @@ class Producte {
     int? quantitat,
     String? descripcio,
     String? imatgeBase64,
+    bool? isNewApp,
   }) {
     return Producte(
       id: id ?? this.id,
@@ -44,6 +49,7 @@ class Producte {
       quantitat: quantitat ?? this.quantitat,
       descripcio: descripcio ?? this.descripcio,
       imatgeBase64: imatgeBase64 ?? this.imatgeBase64,
+      isNewApp: isNewApp ?? this.isNewApp,
     );
   }
 }

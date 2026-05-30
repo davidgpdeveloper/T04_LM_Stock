@@ -13,7 +13,7 @@ class ComandesHandler {
     try {
       final result = await db.pool.execute(
         'SELECT c_ID, c_ALBARA, c_DATA, c_BOTIGA, c_PRODUCTE, '
-        'c_QUANTITAT, c_ESTAT, c_OBSERVACIONS, c_IS_NEW_APP '
+        'c_QUANTITAT, c_ESTAT, c_OBSERVACIONS, c_IS_FROM_NEW_APP '
         'FROM comandes ORDER BY c_DATA DESC, c_ALBARA ASC',
       );
       final comandes = result.rows.map((row) => _rowToJson(row.assoc())).toList();
@@ -28,7 +28,7 @@ class ComandesHandler {
     try {
       final result = await db.pool.execute(
         'SELECT c_ID, c_ALBARA, c_DATA, c_BOTIGA, c_PRODUCTE, '
-        'c_QUANTITAT, c_ESTAT, c_OBSERVACIONS, c_IS_NEW_APP '
+        'c_QUANTITAT, c_ESTAT, c_OBSERVACIONS, c_IS_FROM_NEW_APP '
         'FROM comandes WHERE c_ID = :id',
         {'id': id},
       );
@@ -50,8 +50,8 @@ class ComandesHandler {
       final body = jsonDecode(await request.readAsString()) as Map<String, dynamic>;
       final result = await db.pool.execute(
         'INSERT INTO comandes (c_ALBARA, c_DATA, c_BOTIGA, c_PRODUCTE, '
-        'c_QUANTITAT, c_ESTAT, c_OBSERVACIONS, c_IS_NEW_APP) '
-        'VALUES (:albara, :data, :botiga, :producte, :quantitat, :estat, :observacions, :is_new_app)',
+        'c_QUANTITAT, c_ESTAT, c_OBSERVACIONS, c_IS_FROM_NEW_APP) '
+        'VALUES (:albara, :data, :botiga, :producte, :quantitat, :estat, :observacions, :is_from_new_app)',
         {
           'albara': body['albara'] ?? '',
           'data': body['data'] ?? '',
@@ -60,7 +60,7 @@ class ComandesHandler {
           'quantitat': (body['quantitat'] ?? 0).toString(),
           'estat': body['estat'] ?? '',
           'observacions': body['observacions'] ?? '',
-          'is_new_app': body['is_new_app'] == null ? null : (body['is_new_app'] == true ? '1' : '0'),
+          'is_from_new_app': body['is_from_new_app'] == null ? null : (body['is_from_new_app'] == true ? '1' : '0'),
         },
       );
       final newId = result.lastInsertID.toInt();
@@ -78,7 +78,7 @@ class ComandesHandler {
         'UPDATE comandes SET c_ALBARA = :albara, c_DATA = :data, '
         'c_BOTIGA = :botiga, c_PRODUCTE = :producte, c_QUANTITAT = :quantitat, '
         'c_ESTAT = :estat, c_OBSERVACIONS = :observacions, '
-        'c_IS_NEW_APP = :is_new_app WHERE c_ID = :id',
+        'c_IS_FROM_NEW_APP = :is_from_new_app WHERE c_ID = :id',
         {
           'id': id,
           'albara': body['albara'] ?? '',
@@ -88,7 +88,7 @@ class ComandesHandler {
           'quantitat': (body['quantitat'] ?? 0).toString(),
           'estat': body['estat'] ?? '',
           'observacions': body['observacions'] ?? '',
-          'is_new_app': body['is_new_app'] == null ? null : (body['is_new_app'] == true ? '1' : '0'),
+          'is_from_new_app': body['is_from_new_app'] == null ? null : (body['is_from_new_app'] == true ? '1' : '0'),
         },
       );
       return _jsonResponse({...body, 'id': int.parse(id)});
@@ -154,7 +154,7 @@ class ComandesHandler {
         'quantitat': int.tryParse(r['c_QUANTITAT'] ?? '0') ?? 0,
         'estat': r['c_ESTAT'] ?? '',
         'observacions': r['c_OBSERVACIONS'] ?? '',
-        'is_new_app': r['c_IS_NEW_APP'] == null ? null : r['c_IS_NEW_APP'] == '1',
+        'is_from_new_app': r['c_IS_FROM_NEW_APP'] == null ? null : r['c_IS_FROM_NEW_APP'] == '1',
       };
 }
 

@@ -36,9 +36,13 @@ class Database {
       "ALTER TABLE botigues ADD COLUMN b_IMATGE MEDIUMTEXT DEFAULT NULL",
       "ALTER TABLE productes ADD COLUMN p_IMATGE MEDIUMTEXT DEFAULT NULL",
       // Columna per identificar registres creats des de l'app nova
-      "ALTER TABLE botigues ADD COLUMN b_IS_NEW_APP TINYINT(1) DEFAULT NULL",
-      "ALTER TABLE productes ADD COLUMN p_IS_NEW_APP TINYINT(1) DEFAULT NULL",
-      "ALTER TABLE comandes ADD COLUMN c_IS_NEW_APP TINYINT(1) DEFAULT NULL",
+      "ALTER TABLE botigues ADD COLUMN b_IS_FROM_NEW_APP TINYINT(1) DEFAULT NULL",
+      "ALTER TABLE productes ADD COLUMN p_IS_FROM_NEW_APP TINYINT(1) DEFAULT NULL",
+      "ALTER TABLE comandes ADD COLUMN c_IS_FROM_NEW_APP TINYINT(1) DEFAULT NULL",
+      // Migracions per renombrar columnes antigues (si existien)
+      "ALTER TABLE botigues DROP COLUMN b_IS_NEW_APP",
+      "ALTER TABLE productes DROP COLUMN p_IS_NEW_APP",
+      "ALTER TABLE comandes DROP COLUMN c_IS_NEW_APP",
     ];
 
     for (final sql in migrations) {

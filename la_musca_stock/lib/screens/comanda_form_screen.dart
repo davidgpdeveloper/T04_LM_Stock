@@ -102,7 +102,7 @@ class _ComandaFormScreenState extends State<ComandaFormScreen> {
       estat: _selectedEstat,
       observacions: _observacionsController.text.trim(),
       // Marcar com a registre creat des de l'app nova
-      isNewApp: _isEditing ? widget.comanda?.isNewApp : true,
+      isFromNewApp: _isEditing ? widget.comanda?.isFromNewApp : true,
     );
 
     if (_isEditing) {

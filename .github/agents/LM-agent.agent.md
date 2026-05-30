@@ -50,4 +50,6 @@ Antes de sugerir, analiza:
 
 - Al acabar todo, ejecuta la aplicación en Chrome. Si el backend está desactivado, arranca el backend y luego ejecuta la aplicación en Chrome. Si todo está ejecutándose, recarga la aplicación en Chrome para asegurarte de que los cambios se reflejen correctamente.
 
+- El commit y push no lo hagas de manera automática, deja que siempre lo indique yo cuando quiera que lo hagas.
+
 </workflow>

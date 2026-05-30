@@ -388,8 +388,20 @@ class _HomeScreenState extends State<HomeScreen>
                           : null,
                       child: ListTile(
                         leading: _buildEstatIcon(comanda.estat),
-                        title: Text(
-                          '${comanda.albara} — ${botiga?.nom ?? "Desconeguda"}',
+                        title: Row(
+                          children: [
+                            // Indicador verd per a registres creats des de l'app nova
+                            if (comanda.isFromNewApp == true)
+                              const Padding(
+                                padding: EdgeInsets.only(right: 6),
+                                child: Icon(Icons.circle, color: Colors.green, size: 10),
+                              ),
+                            Expanded(
+                              child: Text(
+                                '${comanda.albara} — ${botiga?.nom ?? "Desconeguda"}',
+                              ),
+                            ),
+                          ],
                         ),
                         subtitle: Text(
                           '${producte?.nom ?? "Desconegut"} · '
@@ -651,7 +663,17 @@ class _HomeScreenState extends State<HomeScreen>
                         ? const Icon(Icons.store)
                         : null,
                   ),
-                  title: Text(botiga.nom),
+                  title: Row(
+                    children: [
+                      // Indicador verd per a registres creats des de l'app nova
+                      if (botiga.isFromNewApp == true)
+                        const Padding(
+                          padding: EdgeInsets.only(right: 6),
+                          child: Icon(Icons.circle, color: Colors.green, size: 10),
+                        ),
+                      Expanded(child: Text(botiga.nom)),
+                    ],
+                  ),
                   subtitle: botiga.poblacio.isNotEmpty
                       ? Text(botiga.poblacio)
                       : null,
@@ -866,7 +888,17 @@ class _HomeScreenState extends State<HomeScreen>
                         ? const Icon(Icons.inventory)
                         : null,
                   ),
-                  title: Text(producte.nom),
+                  title: Row(
+                    children: [
+                      // Indicador verd per a registres creats des de l'app nova
+                      if (producte.isFromNewApp == true)
+                        const Padding(
+                          padding: EdgeInsets.only(right: 6),
+                          child: Icon(Icons.circle, color: Colors.green, size: 10),
+                        ),
+                      Expanded(child: Text(producte.nom)),
+                    ],
+                  ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

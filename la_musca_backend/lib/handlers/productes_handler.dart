@@ -12,7 +12,7 @@ class ProductesHandler {
   Future<Response> getAll(Request request) async {
     try {
       final result = await db.pool.execute(
-        'SELECT p_ID, p_NOM, p_QUANTITAT, p_DESC, p_IMATGE, p_IS_NEW_APP FROM productes ORDER BY p_NOM',
+        'SELECT p_ID, p_NOM, p_QUANTITAT, p_DESC, p_IMATGE, p_IS_FROM_NEW_APP FROM productes ORDER BY p_NOM',
       );
       final productes = result.rows.map((row) => _rowToJson(row.assoc())).toList();
       return _jsonResponse(productes);
@@ -25,7 +25,7 @@ class ProductesHandler {
   Future<Response> getById(Request request, String id) async {
     try {
       final result = await db.pool.execute(
-        'SELECT p_ID, p_NOM, p_QUANTITAT, p_DESC, p_IMATGE, p_IS_NEW_APP FROM productes WHERE p_ID = :id',
+        'SELECT p_ID, p_NOM, p_QUANTITAT, p_DESC, p_IMATGE, p_IS_FROM_NEW_APP FROM productes WHERE p_ID = :id',
         {'id': id},
       );
       if (result.rows.isEmpty) {
@@ -45,14 +45,14 @@ class ProductesHandler {
     try {
       final body = jsonDecode(await request.readAsString()) as Map<String, dynamic>;
       final result = await db.pool.execute(
-        'INSERT INTO productes (p_NOM, p_QUANTITAT, p_DESC, p_IMATGE, p_IS_NEW_APP) '
-        'VALUES (:nom, :quantitat, :desc, :imatge, :is_new_app)',
+        'INSERT INTO productes (p_NOM, p_QUANTITAT, p_DESC, p_IMATGE, p_IS_FROM_NEW_APP) '
+        'VALUES (:nom, :quantitat, :desc, :imatge, :is_from_new_app)',
         {
           'nom': body['nom'] ?? '',
           'quantitat': (body['quantitat'] ?? 0).toString(),
           'desc': body['descripcio'] ?? '',
           'imatge': body['imatge'],
-          'is_new_app': body['is_new_app'] == null ? null : (body['is_new_app'] == true ? '1' : '0'),
+          'is_from_new_app': body['is_from_new_app'] == null ? null : (body['is_from_new_app'] == true ? '1' : '0'),
         },
       );
       final newId = result.lastInsertID.toInt();
@@ -68,14 +68,14 @@ class ProductesHandler {
       final body = jsonDecode(await request.readAsString()) as Map<String, dynamic>;
       await db.pool.execute(
         'UPDATE productes SET p_NOM = :nom, p_QUANTITAT = :quantitat, '
-        'p_DESC = :desc, p_IMATGE = :imatge, p_IS_NEW_APP = :is_new_app WHERE p_ID = :id',
+        'p_DESC = :desc, p_IMATGE = :imatge, p_IS_FROM_NEW_APP = :is_from_new_app WHERE p_ID = :id',
         {
           'id': id,
           'nom': body['nom'] ?? '',
           'quantitat': (body['quantitat'] ?? 0).toString(),
           'desc': body['descripcio'] ?? '',
           'imatge': body['imatge'],
-          'is_new_app': body['is_new_app'] == null ? null : (body['is_new_app'] == true ? '1' : '0'),
+          'is_from_new_app': body['is_from_new_app'] == null ? null : (body['is_from_new_app'] == true ? '1' : '0'),
         },
       );
       return _jsonResponse({...body, 'id': int.parse(id)});
@@ -110,7 +110,7 @@ class ProductesHandler {
         'quantitat': int.tryParse(r['p_QUANTITAT'] ?? '0') ?? 0,
         'descripcio': r['p_DESC'] ?? '',
         'imatge': r['p_IMATGE'],
-        'is_new_app': r['p_IS_NEW_APP'] == null ? null : r['p_IS_NEW_APP'] == '1',
+        'is_from_new_app': r['p_IS_FROM_NEW_APP'] == null ? null : r['p_IS_FROM_NEW_APP'] == '1',
       };
 }
 

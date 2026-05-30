@@ -10,7 +10,7 @@ class Botiga {
   String telefon;
   String observacions;
   String? imatgeBase64;
-  bool? isNewApp;
+  bool? isFromNewApp;
 
   Botiga({
     required this.id,
@@ -24,7 +24,7 @@ class Botiga {
     this.telefon = '',
     this.observacions = '',
     this.imatgeBase64,
-    this.isNewApp,
+    this.isFromNewApp,
   });
 
   factory Botiga.fromJson(Map<String, dynamic> json) {
@@ -40,7 +40,7 @@ class Botiga {
       telefon: json['telefon'] as String? ?? '',
       observacions: json['observacions'] as String? ?? '',
       imatgeBase64: json['imatge'] as String?,
-      isNewApp: json['is_new_app'] as bool?,
+      isFromNewApp: json['is_from_new_app'] as bool?,
     );
   }
 
@@ -56,7 +56,7 @@ class Botiga {
         'telefon': telefon,
         'observacions': observacions,
         'imatge': imatgeBase64,
-        'is_new_app': isNewApp,
+        'is_from_new_app': isFromNewApp,
       };
 
   Botiga copyWith({
@@ -71,7 +71,7 @@ class Botiga {
     String? telefon,
     String? observacions,
     String? imatgeBase64,
-    bool? isNewApp,
+    bool? isFromNewApp,
   }) {
     return Botiga(
       id: id ?? this.id,
@@ -85,7 +85,7 @@ class Botiga {
       telefon: telefon ?? this.telefon,
       observacions: observacions ?? this.observacions,
       imatgeBase64: imatgeBase64 ?? this.imatgeBase64,
-      isNewApp: isNewApp ?? this.isNewApp,
+      isFromNewApp: isFromNewApp ?? this.isFromNewApp,
     );
   }
 }

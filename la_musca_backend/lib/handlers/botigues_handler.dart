@@ -13,7 +13,7 @@ class BotiguesHandler {
     try {
       final result = await db.pool.execute(
         'SELECT b_ID, b_NOM, b_NOMF, b_NIF, b_ADRECA, '
-        'b_POBLACIO, b_CP, b_MAIL, b_TELF, b_OBSERVACIONS, b_IMATGE, b_IS_NEW_APP '
+        'b_POBLACIO, b_CP, b_MAIL, b_TELF, b_OBSERVACIONS, b_IMATGE, b_IS_FROM_NEW_APP '
         'FROM botigues ORDER BY b_NOM',
       );
       final botigues = result.rows.map((row) => _rowToJson(row.assoc())).toList();
@@ -28,7 +28,7 @@ class BotiguesHandler {
     try {
       final result = await db.pool.execute(
         'SELECT b_ID, b_NOM, b_NOMF, b_NIF, b_ADRECA, '
-        'b_POBLACIO, b_CP, b_MAIL, b_TELF, b_OBSERVACIONS, b_IMATGE, b_IS_NEW_APP '
+        'b_POBLACIO, b_CP, b_MAIL, b_TELF, b_OBSERVACIONS, b_IMATGE, b_IS_FROM_NEW_APP '
         'FROM botigues WHERE b_ID = :id',
         {'id': id},
       );
@@ -50,9 +50,9 @@ class BotiguesHandler {
       final body = jsonDecode(await request.readAsString()) as Map<String, dynamic>;
       final result = await db.pool.execute(
         'INSERT INTO botigues (b_NOM, b_NOMF, b_NIF, b_ADRECA, '
-        'b_POBLACIO, b_CP, b_MAIL, b_TELF, b_OBSERVACIONS, b_IMATGE, b_IS_NEW_APP) '
+        'b_POBLACIO, b_CP, b_MAIL, b_TELF, b_OBSERVACIONS, b_IMATGE, b_IS_FROM_NEW_APP) '
         'VALUES (:nom, :nomf, :nif, :adreca, :poblacio, '
-        ':cp, :mail, :telf, :observacions, :imatge, :is_new_app)',
+        ':cp, :mail, :telf, :observacions, :imatge, :is_from_new_app)',
         {
           'nom': body['nom'] ?? '',
           'nomf': body['nom_fiscal'] ?? '',
@@ -64,7 +64,7 @@ class BotiguesHandler {
           'telf': body['telefon'] ?? '',
           'observacions': body['observacions'] ?? '',
           'imatge': body['imatge'],
-          'is_new_app': body['is_new_app'] == null ? null : (body['is_new_app'] == true ? '1' : '0'),
+          'is_from_new_app': body['is_from_new_app'] == null ? null : (body['is_from_new_app'] == true ? '1' : '0'),
         },
       );
       final newId = result.lastInsertID.toInt();
@@ -83,7 +83,7 @@ class BotiguesHandler {
         'b_NIF = :nif, b_ADRECA = :adreca, b_POBLACIO = :poblacio, '
         'b_CP = :cp, b_MAIL = :mail, b_TELF = :telf, '
         'b_OBSERVACIONS = :observacions, b_IMATGE = :imatge, '
-        'b_IS_NEW_APP = :is_new_app WHERE b_ID = :id',
+        'b_IS_FROM_NEW_APP = :is_from_new_app WHERE b_ID = :id',
         {
           'id': id,
           'nom': body['nom'] ?? '',
@@ -96,7 +96,7 @@ class BotiguesHandler {
           'telf': body['telefon'] ?? '',
           'observacions': body['observacions'] ?? '',
           'imatge': body['imatge'],
-          'is_new_app': body['is_new_app'] == null ? null : (body['is_new_app'] == true ? '1' : '0'),
+          'is_from_new_app': body['is_from_new_app'] == null ? null : (body['is_from_new_app'] == true ? '1' : '0'),
         },
       );
       return _jsonResponse({...body, 'id': int.parse(id)});
@@ -137,7 +137,7 @@ class BotiguesHandler {
         'telefon': r['b_TELF'] ?? '',
         'observacions': r['b_OBSERVACIONS'] ?? '',
         'imatge': r['b_IMATGE'],
-        'is_new_app': r['b_IS_NEW_APP'] == null ? null : r['b_IS_NEW_APP'] == '1',
+        'is_from_new_app': r['b_IS_FROM_NEW_APP'] == null ? null : r['b_IS_FROM_NEW_APP'] == '1',
       };
 }
 

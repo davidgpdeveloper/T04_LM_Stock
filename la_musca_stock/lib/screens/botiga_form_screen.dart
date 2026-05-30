@@ -79,7 +79,7 @@ class _BotigaFormScreenState extends State<BotigaFormScreen> {
       observacions: _observacionsController.text.trim(),
       imatgeBase64: _imatgeBase64,
       // Marcar com a registre creat des de l'app nova
-      isNewApp: _isEditing ? widget.botiga?.isNewApp : true,
+      isFromNewApp: _isEditing ? widget.botiga?.isFromNewApp : true,
     );
 
     if (_isEditing) {

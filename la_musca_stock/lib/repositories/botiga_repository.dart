@@ -50,6 +50,7 @@ class BotigaRepository extends ChangeNotifier {
       _botigues.add(created);
     } else {
       _botigues.add(botiga);
+      await TestDataProvider.saveBotigues(_botigues);
     }
     notifyListeners();
   }
@@ -61,6 +62,9 @@ class BotigaRepository extends ChangeNotifier {
     final index = _botigues.indexWhere((b) => b.id == botiga.id);
     if (index >= 0) {
       _botigues[index] = botiga;
+      if (AppConfig.usarDadesDeProva) {
+        await TestDataProvider.saveBotigues(_botigues);
+      }
       notifyListeners();
     }
   }
@@ -70,6 +74,9 @@ class BotigaRepository extends ChangeNotifier {
       await ApiDataSource.deleteBotiga(id);
     }
     _botigues.removeWhere((b) => b.id == id);
+    if (AppConfig.usarDadesDeProva) {
+      await TestDataProvider.saveBotigues(_botigues);
+    }
     notifyListeners();
   }
 }

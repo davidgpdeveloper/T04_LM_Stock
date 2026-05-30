@@ -60,6 +60,7 @@ class ComandaRepository extends ChangeNotifier {
       _comandes.add(created);
     } else {
       _comandes.add(comanda);
+      await TestDataProvider.saveComandes(_comandes);
     }
     notifyListeners();
   }
@@ -71,6 +72,9 @@ class ComandaRepository extends ChangeNotifier {
     final index = _comandes.indexWhere((c) => c.id == comanda.id);
     if (index >= 0) {
       _comandes[index] = comanda;
+      if (AppConfig.usarDadesDeProva) {
+        await TestDataProvider.saveComandes(_comandes);
+      }
       notifyListeners();
     }
   }
@@ -80,6 +84,9 @@ class ComandaRepository extends ChangeNotifier {
       await ApiDataSource.deleteComanda(id);
     }
     _comandes.removeWhere((c) => c.id == id);
+    if (AppConfig.usarDadesDeProva) {
+      await TestDataProvider.saveComandes(_comandes);
+    }
     notifyListeners();
   }
 
@@ -88,6 +95,9 @@ class ComandaRepository extends ChangeNotifier {
       await ApiDataSource.deleteComandesByBotiga(botigaId);
     }
     _comandes.removeWhere((c) => c.botigaId == botigaId);
+    if (AppConfig.usarDadesDeProva) {
+      await TestDataProvider.saveComandes(_comandes);
+    }
     notifyListeners();
   }
 
@@ -96,6 +106,9 @@ class ComandaRepository extends ChangeNotifier {
       await ApiDataSource.deleteComandesByProducte(producteId);
     }
     _comandes.removeWhere((c) => c.producteId == producteId);
+    if (AppConfig.usarDadesDeProva) {
+      await TestDataProvider.saveComandes(_comandes);
+    }
     notifyListeners();
   }
 }

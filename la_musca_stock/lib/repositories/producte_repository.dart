@@ -51,6 +51,7 @@ class ProducteRepository extends ChangeNotifier {
       _productes.add(created);
     } else {
       _productes.add(producte);
+      await TestDataProvider.saveProductes(_productes);
     }
     notifyListeners();
   }
@@ -62,6 +63,9 @@ class ProducteRepository extends ChangeNotifier {
     final index = _productes.indexWhere((p) => p.id == producte.id);
     if (index >= 0) {
       _productes[index] = producte;
+      if (AppConfig.usarDadesDeProva) {
+        await TestDataProvider.saveProductes(_productes);
+      }
       notifyListeners();
     }
   }
@@ -71,6 +75,9 @@ class ProducteRepository extends ChangeNotifier {
       await ApiDataSource.deleteProducte(id);
     }
     _productes.removeWhere((p) => p.id == id);
+    if (AppConfig.usarDadesDeProva) {
+      await TestDataProvider.saveProductes(_productes);
+    }
     notifyListeners();
   }
 }
